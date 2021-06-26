@@ -1,4 +1,4 @@
-# sel_cusf_landing_predictor_web
+# frontend
 
 ## Project setup
 ```
