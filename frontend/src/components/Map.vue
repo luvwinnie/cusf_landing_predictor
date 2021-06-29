@@ -20,13 +20,6 @@
                                     }}
                                 </p>
                             </div>
-                            <!-- <v-list-item-title class="text-h5 mb-1">
-                                            Headline 5
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle
-                                            >Greyhound divisely hello coldly
-                                            fonwderfully</v-list-item-subtitle
-                                        > -->
                             <v-row align="center" justify="space-around">
                                 <v-btn text>
                                     Show Debug
@@ -37,6 +30,11 @@
                     </v-list-item>
                 </v-card>
             </LControl>
+            <PredictForm
+                :form_inputs="this.form_inputs"
+                :prediction="this.prediction"
+                @clear="prediction = $event"
+            />
             <!-- <LTileLayer :url="url"> -->
             <LTileLayer
                 v-for="tileProvider in tileProviders"
@@ -49,160 +47,6 @@
             >
             </LTileLayer>
             <LMarker :lat-lng="[52.2135, 1.0964]"></LMarker>
-            <LControl
-                :position="'bottomright'"
-                class="custom-control-watermark"
-            >
-                <v-expansion-panels accordion>
-                    <!-- <v-expansion-panel v-for="(item, i) in 5" :key="i"> -->
-                    <v-expansion-panel>
-                        <v-expansion-panel-header>
-                            CUSF Predictor
-                        </v-expansion-panel-header>
-                        <v-expansion-panel-content>
-                            <v-card max-width="344" outlined>
-                                <v-list-item>
-                                    <v-select
-                                        style="z-index:1000;"
-                                        label="Launch Site"
-                                        v-model="launchsite"
-                                        :items="items"
-                                    ></v-select>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-row>
-                                        <v-col cols="6">
-                                            <v-text-field
-                                                v-model="lat"
-                                                label="Latitude"
-                                                required
-                                            ></v-text-field>
-                                        </v-col>
-                                        <v-col cols="6">
-                                            <v-text-field
-                                                v-model="lng"
-                                                label="Longtitude"
-                                                required
-                                            ></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-text-field
-                                        v-model="launchAttitude"
-                                        label="Launch altitude (m)"
-                                        required
-                                    ></v-text-field>
-                                </v-list-item>
-                                <v-list-item three-line>
-                                    <v-list-item-content>
-                                        <v-list-item-title
-                                            >Launch
-                                            Datetime(UTC)</v-list-item-title
-                                        >
-                                        <v-list-item-subtitle
-                                            ><v-row>
-                                                <v-col cols="4">
-                                                    <v-text-field
-                                                        v-model="selectDay"
-                                                        :count="2"
-                                                        label="Day"
-                                                        required
-                                                    ></v-text-field>
-                                                </v-col>
-                                                <v-col cols="4">
-                                                    <v-select
-                                                        style="z-index:1000;"
-                                                        v-model="selectMonth"
-                                                        item-text="key"
-                                                        item-value="value"
-                                                        :items="months"
-                                                        menu-props="auto"
-                                                        label="Month"
-                                                        hide-details
-                                                        single-line
-                                                    ></v-select>
-                                                </v-col>
-                                                <v-col cols="4">
-                                                    <v-text-field
-                                                        v-model="selectYear"
-                                                        :count="4"
-                                                        label="Year"
-                                                        required
-                                                    ></v-text-field>
-                                                </v-col> </v-row
-                                        ></v-list-item-subtitle>
-                                        <v-list-item-subtitle>
-                                            <v-row>
-                                                <v-col cols="6">
-                                                    <v-text-field
-                                                        v-model="selectHours"
-                                                        :count="2"
-                                                        label="Hours"
-                                                        required
-                                                    ></v-text-field>
-                                                </v-col>
-                                                <v-col cols="6">
-                                                    <v-text-field
-                                                        v-model="selectMinutes"
-                                                        :count="2"
-                                                        label="Minutes"
-                                                        required
-                                                    ></v-text-field>
-                                                </v-col>
-                                            </v-row>
-                                        </v-list-item-subtitle>
-                                    </v-list-item-content>
-                                </v-list-item>
-
-                                <v-list-item>
-                                    <v-text-field
-                                        v-model="ascentRate"
-                                        label="Ascent Rate (m/s)"
-                                        required
-                                    ></v-text-field>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-text-field
-                                        v-model="burstAttitude"
-                                        label="Burst Altitude (m)"
-                                        required
-                                    ></v-text-field>
-
-                                    <v-btn
-                                        x-small
-                                        @click="Reset"
-                                        outlined
-                                        rounded
-                                        text
-                                    >
-                                        Burst Calculator
-                                    </v-btn>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-text-field
-                                        v-model="descentRate"
-                                        hint="At sea level"
-                                        label="Descent Rate (m/s)"
-                                        required
-                                    ></v-text-field>
-                                </v-list-item>
-                                <v-list-item>
-                                    <v-btn
-                                        small
-                                        @click="Reset"
-                                        outlined
-                                        rounded
-                                        text
-                                    >
-                                        Button
-                                    </v-btn>
-                                </v-list-item>
-                            </v-card>
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                </v-expansion-panels>
-            </LControl>
 
             <Prediction
                 v-if="prediction !== null"
@@ -221,10 +65,11 @@ import {
     LControl,
 } from "vue2-leaflet";
 import Prediction from "../components/Prediction.vue";
+import PredictForm from "../components/PredictForm.vue";
 import AboutDialog from "../components/AboutDialog.vue";
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
-import parsePrediction from "../common/utils";
+import { parsePrediction } from "../common/utils";
 
 export default {
     name: "Map",
@@ -234,8 +79,12 @@ export default {
         LMarker,
         LControl,
         LControlLayers,
+        PredictForm,
         Prediction,
         AboutDialog,
+    },
+    props: {
+        api_url: String,
     },
     data() {
         return {
@@ -269,34 +118,36 @@ export default {
                         '&copy; <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                 },
             ],
-            items: ["Kofu", "Chuchill"],
-            months: [
-                { key: "Jan", value: 1 },
-                { key: "Feb", value: 2 },
-                { key: "Mar", value: 3 },
-                { key: "Apr", value: 4 },
-                { key: "May", value: 5 },
-                { key: "Jun", value: 6 },
-                { key: "Jul", value: 7 },
-                { key: "Aug", value: 8 },
-                { key: "Sep", value: 9 },
-                { key: "Oct", value: 10 },
-                { key: "Nov", value: 11 },
-                { key: "Dec", value: 12 },
-            ],
-            selectDay: "16",
-            selectMonth: 6,
-            selectYear: "2021",
-            selectHours: "10",
-            selectMinutes: "10",
-            launchsite: "Kofu",
-            lat: 52.2135,
-            lng: 0.0964,
-            launchAttitude: 0,
-            burstAttitude: 30000,
-            ascentRate: 5,
-            descentRate: 5,
-            api: "http://localhost:5000/api/v1/",
+            form_inputs: {
+                items: ["Kofu", "Chuchill"],
+                months: [
+                    { key: "Jan", value: 1 },
+                    { key: "Feb", value: 2 },
+                    { key: "Mar", value: 3 },
+                    { key: "Apr", value: 4 },
+                    { key: "May", value: 5 },
+                    { key: "Jun", value: 6 },
+                    { key: "Jul", value: 7 },
+                    { key: "Aug", value: 8 },
+                    { key: "Sep", value: 9 },
+                    { key: "Oct", value: 10 },
+                    { key: "Nov", value: 11 },
+                    { key: "Dec", value: 12 },
+                ],
+                selectDay: "16",
+                selectMonth: 6,
+                selectYear: "2021",
+                selectHours: "10",
+                selectMinutes: "10",
+                launchsite: "Kofu",
+                lat: 52.2135,
+                lng: 0.0964,
+                launchAttitude: 0,
+                burstAttitude: 30000,
+                ascentRate: 5,
+                descentRate: 5,
+            },
+            api: this.api_url,
             params: {},
         };
     },
@@ -304,32 +155,31 @@ export default {
         getPos(event) {
             this.mousePos["lat"] = event.latlng["lat"].toFixed(4);
             this.mousePos["lng"] = event.latlng["lng"].toFixed(4);
-            // this.mousePos["array"] = [
-            //     event.latlng["lat"].toFixed(4),
-            //     event.latlng["lng"].toFixed(4),
-            // ];
-            // console.log(this.mousePos);
         },
         async clickPos(event) {
-            console.log(this.selectMonth);
+            // console.log(this.selectMonth);
+            console.log(process.env);
             var getTime = moment.tz(
-                `${this.selectYear}-${this.selectMonth}-${this.selectDay} ${this.selectHours}:${this.selectMinutes}`,
+                `${this.form_inputs.selectYear}-${this.form_inputs.selectMonth}-${this.form_inputs.selectDay} ${this.form_inputs.selectHours}:${this.form_inputs.selectMinutes}`,
                 "Asia/Tokyo"
             );
             var launch_time = getTime.utc();
-            console.log(getTime + " " + launch_time);
+            // console.log(getTime + " " + launch_time);
+            this.lat = event.latlng["lat"].toFixed(4);
+            this.lng = event.latlng["lng"].toFixed(4);
+            this.form_inputs.lat = this.lat;
+            this.form_inputs.lng = this.lng;
             this.params = {
                 profile: "standard_profile",
                 launch_datetime: launch_time.format(),
-                launch_latitude: 52.2135,
-                launch_longitude: 0.0964,
-                launch_altitude: 0,
-                ascent_rate: 5,
-                burst_altitude: 30000,
-                descent_rate: 5,
+                launch_latitude: event.latlng["lat"].toFixed(4),
+                launch_longitude: event.latlng["lng"].toFixed(4),
+                launch_altitude: this.form_inputs.launchAttitude,
+                ascent_rate: this.form_inputs.ascentRate,
+                burst_altitude: this.form_inputs.burstAttitude,
+                descent_rate: this.form_inputs.descentRate,
             };
-            this.lat = event.latlng["lat"].toFixed(4);
-            this.lng = event.latlng["lng"].toFixed(4);
+
             await axios
                 .get(this.api, { params: this.params })
                 .then((response) => {
@@ -352,11 +202,7 @@ export default {
                             lng: result.landing.latlng.lng.toFixed(4),
                         },
                     };
-                    console.log("axios:", this.prediction.flight_path);
                 });
-        },
-        Reset() {
-            this.prediction = null;
         },
     },
     mounted() {

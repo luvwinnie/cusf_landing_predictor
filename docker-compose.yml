@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+    tawhiri_sel:
+        build:
+            context: ./tawhiri_sel
+            args:
+                - http_proxy=$http_proxy
+                - https_proxy=$https_proxy
+        env_file: .env
+        container_name: tawhiri_app
+        ports:
+            - "5000:5000"
+        volumes:
+            - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
+            - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
+              # - ./app/medical:/var/www/medical/
+              # - ./log/nginx/:/var/log/nginx/
+              # - ./log/uwsgi/:/var/log/uwsgi/
+        environment:
+            - TZ=Asia/Tokyo
+        # depends_on:
+        #     - medical_db
+        restart: always
+#   medical_db:
+#     build:
+#       context: ./db
+#       dockerfile: Dockerfile
+#     container_name: medical_db
+#     env_file: .env
+#     ports:
+#         - "${DB_PORT_HOST}:${DB_PORT}"
+#     volumes:
+#       - ./log/mysql/:/var/log/mysql
+#     environment:
+#         - MYSQL_DATABASE=${DB_NAME}
+#         - MYSQL_USER=${DB_USER}
+#         - MYSQL_PASSWORD=${DB_PASS}
+#         - MYSQL_ROOT_PASSWORD=${DB_ROOT_PW}
+#         - TZ=${TZ}

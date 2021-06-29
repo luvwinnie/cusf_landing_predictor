@@ -1,7 +1,7 @@
 import L from "leaflet";
 import moment from "moment-timezone/moment-timezone";
 
-const parsePrediction = function(prediction) {
+export const parsePrediction = (prediction) => {
     // Convert a prediction in the Tawhiri API format to a Polyline.
 
     var flight_path = [];
@@ -83,5 +83,3 @@ const parsePrediction = function(prediction) {
         flight_time: flight_time,
     };
 };
-
-export default parsePrediction;

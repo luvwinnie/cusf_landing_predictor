@@ -22,20 +22,10 @@
             </div>
 
             <v-spacer></v-spacer>
-
-            <!-- <v-btn
-                href="https://github.com/vuetifyjs/vuetify/releases/latest"
-                target="_blank"
-                text
-            >
-                <span class="mr-2">Latest Release</span>
-                <v-icon>mdi-open-in-new</v-icon>
-            </v-btn> -->
         </v-app-bar>
 
         <v-main>
-            <!-- <HelloWorld/> -->
-            <Map />
+            <Map :api_url="api_url" />
         </v-main>
     </v-app>
 </template>
@@ -52,7 +42,7 @@ export default {
     },
 
     data: () => ({
-        //
+        api_url: process.env.VUE_APP_TAWHIRI_API_URL,
     }),
 };
 </script>
