@@ -1,0 +1,7 @@
+fastapi
+alembic
+uvicorn
+psycopg2
+Cython
+strict_rfc3339
+magicmemoryview

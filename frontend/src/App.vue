@@ -31,7 +31,6 @@
 </template>
 
 <script>
-// import HelloWorld from "./components/HelloWorld";
 import Map from "./components/Map";
 
 export default {

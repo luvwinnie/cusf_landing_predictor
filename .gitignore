@@ -23,3 +23,10 @@ pnpm-debug.log*
 *.sw?
 
 __pycache__
+*.gz
+*.so
+*.npz
+*.json
+*.c
+*.o
+build

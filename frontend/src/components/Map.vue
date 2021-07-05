@@ -9,6 +9,23 @@
         >
             <LControlLayers position="topleft"></LControlLayers>
             <LControl :position="'topright'" class="custom-control-watermark">
+                <v-dialog
+                    v-model="isLoading"
+                    hide-overlay
+                    persistent
+                    width="300"
+                >
+                    <v-card color="primary" dark>
+                        <v-card-text>
+                            Loading...
+                            <v-progress-linear
+                                indeterminate
+                                color="white"
+                                class="mb-0"
+                            ></v-progress-linear>
+                        </v-card-text>
+                    </v-card>
+                </v-dialog>
                 <v-card class="mx-auto" max-width="344" outlined>
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -88,6 +105,7 @@ export default {
     },
     data() {
         return {
+            isLoading: false,
             mousePos: { lat: "?", lng: "?" },
             prediction: null,
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
@@ -154,26 +172,33 @@ export default {
     methods: {
         getPos(event) {
             this.mousePos["lat"] = event.latlng["lat"].toFixed(4);
-            this.mousePos["lng"] = event.latlng["lng"].toFixed(4);
+            this.mousePos["lng"] = event.latlng["lng"];
+            if (this.mousePos["lng"] < 0.0) {
+                this.mousePos["lng"] += 360.0;
+            }
         },
         async clickPos(event) {
             // console.log(this.selectMonth);
             console.log(process.env);
+            this.isLoading = true;
             var getTime = moment.tz(
                 `${this.form_inputs.selectYear}-${this.form_inputs.selectMonth}-${this.form_inputs.selectDay} ${this.form_inputs.selectHours}:${this.form_inputs.selectMinutes}`,
                 "Asia/Tokyo"
             );
             var launch_time = getTime.utc();
             // console.log(getTime + " " + launch_time);
-            this.lat = event.latlng["lat"].toFixed(4);
-            this.lng = event.latlng["lng"].toFixed(4);
+            this.lat = event.latlng["lat"];
+            this.lng = event.latlng["lng"];
+            if (this.lng < 0.0) {
+                this.lng += 360.0;
+            }
             this.form_inputs.lat = this.lat;
             this.form_inputs.lng = this.lng;
             this.params = {
                 profile: "standard_profile",
                 launch_datetime: launch_time.format(),
-                launch_latitude: event.latlng["lat"].toFixed(4),
-                launch_longitude: event.latlng["lng"].toFixed(4),
+                launch_latitude: this.lat.toFixed(4),
+                launch_longitude: this.lng.toFixed(4),
                 launch_altitude: this.form_inputs.launchAttitude,
                 ascent_rate: this.form_inputs.ascentRate,
                 burst_altitude: this.form_inputs.burstAttitude,
@@ -202,6 +227,7 @@ export default {
                             lng: result.landing.latlng.lng.toFixed(4),
                         },
                     };
+                    this.isLoading = false;
                 });
         },
     },
