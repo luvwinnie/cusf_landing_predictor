@@ -2,7 +2,7 @@
     <div style="height: 100%">
         <LMap
             @click="clickPos"
-            @mousemove="getPos"
+            @mousemove="updateMousePos($event)"
             ref="map"
             :zoom="zoom"
             :center="center"
@@ -32,8 +32,8 @@
                             <div class="text-overline mb-4">
                                 Current mouse position
                                 <p>
-                                    Lat:{{ mousePos["lat"] }} Lon:{{
-                                        mousePos["lng"]
+                                    Lat:{{ currentMousePos["lat"] }} Lon:{{
+                                        currentMousePos["lng"]
                                     }}
                                 </p>
                             </div>
@@ -81,15 +81,16 @@ import {
     LMarker,
     LControl,
 } from "vue2-leaflet";
-import Prediction from "../components/Prediction.vue";
-import PredictForm from "../components/PredictForm.vue";
-import AboutDialog from "../components/AboutDialog.vue";
+import Prediction from "@/components/Prediction.vue";
+import PredictForm from "@/components/PredictForm.vue";
+import AboutDialog from "@/components/AboutDialog.vue";
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
-import { parsePrediction } from "../common/utils";
+import { parsePrediction } from "@/common/utils";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
-    name: "Map",
+    name: "Predictor",
     components: {
         LMap,
         LTileLayer,
@@ -170,13 +171,14 @@ export default {
         };
     },
     methods: {
-        getPos(event) {
-            this.mousePos["lat"] = event.latlng["lat"].toFixed(4);
-            this.mousePos["lng"] = event.latlng["lng"];
-            if (this.mousePos["lng"] < 0.0) {
-                this.mousePos["lng"] += 360.0;
-            }
-        },
+        ...mapActions(["updateMousePos"]),
+        // getPos(event) {
+        //     this.mousePos["lat"] = event.latlng["lat"].toFixed(4);
+        //     this.mousePos["lng"] = event.latlng["lng"];
+        //     if (this.mousePos["lng"] < 0.0) {
+        //         this.mousePos["lng"] += 360.0;
+        //     }
+        // },
         async clickPos(event) {
             // console.log(this.selectMonth);
             console.log(process.env);
@@ -231,6 +233,7 @@ export default {
                 });
         },
     },
+    computed: mapGetters(["currentMousePos"]),
     mounted() {
         moment.tz.add(
             "Asia/Tokyo|JST JDT|-90 -a0|010101010|-QJJ0 Rc0 1lc0 14o0 1zc0 Oo0 1zc0 Oo0|38e6"

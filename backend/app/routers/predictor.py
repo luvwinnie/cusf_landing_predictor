@@ -217,7 +217,7 @@ def get_user(profile:str,launch_datetime:str,
     }
     print(profile)
     print(launch_datetime)
-    parse_request(data)
+    # parse_request(data)
     # print(launch_datetime.strptime(iso_str, '%Y-%m-%dT%H:%M:%S.%fZ'))
     # print(_rfc3339_to_timestamp(launch_datetime))
     return run_prediction(parse_request(data))

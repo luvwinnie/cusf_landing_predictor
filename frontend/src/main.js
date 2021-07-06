@@ -8,8 +8,12 @@ import vuetify from "./plugins/vuetify";
 
 // Import the Icon
 import { Icon } from "leaflet";
+
 // Import the whole Leaflet CSS
 import "leaflet/dist/leaflet.css";
+
+import router from './router'
+import store from './store'
 
 Vue.config.productionTip = false;
 
@@ -23,7 +27,9 @@ Icon.Default.mergeOptions({
 
 new Vue({
     vuetify,
-    render: (h) => h(App),
+    router,
+    store,
+    render: (h) => h(App)
 }).$mount("#app");
 // app.use(VueAxios, axios);
 // Vue.component('prediction',require("./components/Prediction.vue"))

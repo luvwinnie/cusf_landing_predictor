@@ -55,8 +55,6 @@ async def validation_exception_handler(request: Request, exc: NotYetImplementedE
         content=jsonable_encoder({"status_code":exc.status_code,"msg":exc.msg}),
     )
 
-
-
 if settings.backend_cors_origins:
     app.add_middleware(
     CORSMiddleware,
