@@ -9,7 +9,16 @@ export default new Vuex.Store({
         isLoading: false,
         // mousePos: { lat: 0, lng: 0 },
     },
-    mutations: {},
-    actions: {},
+    getters: {
+        isLoading: (state) => state.isLoading,
+    },
+    mutations: {
+        updateIsLoading: (state, isLoading) => (state.isLoading = isLoading),
+    },
+    actions: {
+        async setLoading({ commit }, isLoading) {
+            commit("updateIsLoading", isLoading);
+        },
+    },
     modules: { predictors },
 });

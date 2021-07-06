@@ -32,8 +32,8 @@
                             <div class="text-overline mb-4">
                                 Current mouse position
                                 <p>
-                                    Lat:{{ currentMousePos["lat"] }} Lon:{{
-                                        currentMousePos["lng"]
+                                    Lat:{{ mousePos["lat"] }} Lon:{{
+                                        mousePos["lng"]
                                     }}
                                 </p>
                             </div>
@@ -47,12 +47,7 @@
                     </v-list-item>
                 </v-card>
             </LControl>
-            <PredictForm
-                :form_inputs="this.form_inputs"
-                :prediction="this.prediction"
-                @clear="prediction = $event"
-            />
-            <!-- <LTileLayer :url="url"> -->
+            <PredictForm />
             <LTileLayer
                 v-for="tileProvider in tileProviders"
                 :key="tileProvider.name"
@@ -84,10 +79,8 @@ import {
 import Prediction from "@/components/Prediction.vue";
 import PredictForm from "@/components/PredictForm.vue";
 import AboutDialog from "@/components/AboutDialog.vue";
-import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
-import { parsePrediction } from "@/common/utils";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 
 export default {
     name: "Predictor",
@@ -101,14 +94,9 @@ export default {
         Prediction,
         AboutDialog,
     },
-    // props: {
-    //     api_url: String,
-    // },
     data() {
         return {
-            isLoading: false,
-            mousePos: { lat: "?", lng: "?" },
-            prediction: null,
+            // isLoading: false,
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
             zoom: 8,
             center: [52.2135, 0.0964],
@@ -137,103 +125,21 @@ export default {
                         '&copy; <a href="http://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                 },
             ],
-            form_inputs: {
-                items: ["Kofu", "Chuchill"],
-                months: [
-                    { key: "Jan", value: 1 },
-                    { key: "Feb", value: 2 },
-                    { key: "Mar", value: 3 },
-                    { key: "Apr", value: 4 },
-                    { key: "May", value: 5 },
-                    { key: "Jun", value: 6 },
-                    { key: "Jul", value: 7 },
-                    { key: "Aug", value: 8 },
-                    { key: "Sep", value: 9 },
-                    { key: "Oct", value: 10 },
-                    { key: "Nov", value: 11 },
-                    { key: "Dec", value: 12 },
-                ],
-                selectDay: "16",
-                selectMonth: 6,
-                selectYear: "2021",
-                selectHours: "10",
-                selectMinutes: "10",
-                launchsite: "Kofu",
-                lat: 52.2135,
-                lng: 0.0964,
-                launchAttitude: 0,
-                burstAttitude: 30000,
-                ascentRate: 5,
-                descentRate: 5,
-            },
-            api: process.env.VUE_APP_TAWHIRI_API_URL_2,
-            params: {},
         };
     },
     methods: {
-        ...mapActions(["updateMousePos"]),
-        // getPos(event) {
-        //     this.mousePos["lat"] = event.latlng["lat"].toFixed(4);
-        //     this.mousePos["lng"] = event.latlng["lng"];
-        //     if (this.mousePos["lng"] < 0.0) {
-        //         this.mousePos["lng"] += 360.0;
-        //     }
-        // },
-        async clickPos(event) {
-            // console.log(this.selectMonth);
-            console.log(process.env);
-            this.isLoading = true;
-            var getTime = moment.tz(
-                `${this.form_inputs.selectYear}-${this.form_inputs.selectMonth}-${this.form_inputs.selectDay} ${this.form_inputs.selectHours}:${this.form_inputs.selectMinutes}`,
-                "Asia/Tokyo"
-            );
-            var launch_time = getTime.utc();
-            // console.log(getTime + " " + launch_time);
-            this.lat = event.latlng["lat"];
-            this.lng = event.latlng["lng"];
-            if (this.lng < 0.0) {
-                this.lng += 360.0;
-            }
-            this.form_inputs.lat = this.lat;
-            this.form_inputs.lng = this.lng;
-            this.params = {
-                profile: "standard_profile",
-                launch_datetime: launch_time.format(),
-                launch_latitude: this.lat.toFixed(4),
-                launch_longitude: this.lng.toFixed(4),
-                launch_altitude: this.form_inputs.launchAttitude,
-                ascent_rate: this.form_inputs.ascentRate,
-                burst_altitude: this.form_inputs.burstAttitude,
-                descent_rate: this.form_inputs.descentRate,
-            };
-
-            await axios
-                .get(this.api, { params: this.params })
-                .then((response) => {
-                    console.log(response.data);
-                    var result = parsePrediction(response.data.prediction);
-                    console.log(result);
-                    this.prediction = {
-                        launch_latlng: {
-                            lat: result.launch.latlng.lat.toFixed(4),
-                            lng: result.launch.latlng.lng.toFixed(4),
-                        },
-                        flight_path: result.flight_path,
-                        color: "black",
-                        burst_latlng: {
-                            lat: result.burst.latlng.lat.toFixed(4),
-                            lng: result.burst.latlng.lng.toFixed(4),
-                        },
-                        landing_latlng: {
-                            lat: result.landing.latlng.lat.toFixed(4),
-                            lng: result.landing.latlng.lng.toFixed(4),
-                        },
-                    };
-                    this.isLoading = false;
-                });
-        },
+        ...mapActions("predictors", ["updateMousePos", "clickPos"]),
     },
-    computed: mapGetters(["currentMousePos"]),
+    computed: {
+        ...mapState("predictors", [
+            "api",
+            "mousePos",
+            "prediction",
+            "form_inputs",
+        ]),
+        // ...mapState(["isLoading"]),
+        ...mapGetters(["isLoading"]),
+    },
     mounted() {
         moment.tz.add(
             "Asia/Tokyo|JST JDT|-90 -a0|010101010|-QJJ0 Rc0 1lc0 14o0 1zc0 Oo0 1zc0 Oo0|38e6"

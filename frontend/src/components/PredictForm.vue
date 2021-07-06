@@ -126,13 +126,7 @@
                                     required
                                 ></v-text-field>
 
-                                <v-btn
-                                    x-small
-                                    @click="Reset"
-                                    outlined
-                                    rounded
-                                    text
-                                >
+                                <v-btn x-small outlined rounded text>
                                     Burst Calculator
                                 </v-btn>
                             </v-list-item>
@@ -147,7 +141,7 @@
                             <v-list-item>
                                 <v-btn
                                     small
-                                    @click="Reset"
+                                    @click="clearPrediction($event)"
                                     outlined
                                     rounded
                                     text
@@ -165,24 +159,22 @@
 
 <script>
 import { LControl } from "vue2-leaflet";
+import { mapActions, mapState } from "vuex";
 
 export default {
     name: "PredictForm",
     components: {
         LControl,
     },
-    props: {
-        form_inputs: Object,
-        prediction: Object,
-    },
     data() {
         return { preds: this.prediction };
     },
+
     methods: {
-        Reset() {
-            this.preds = null;
-            this.$emit("clear", this.preds);
-        },
+        ...mapActions("predictors", ["clearPrediction"]),
+    },
+    computed: {
+        ...mapState("predictors", ["prediction", "form_inputs"]),
     },
 };
 </script>
