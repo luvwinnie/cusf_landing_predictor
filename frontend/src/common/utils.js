@@ -83,3 +83,42 @@ export const parsePrediction = (prediction) => {
         flight_time: flight_time,
     };
 };
+
+export const toDegreesMinutesAndSeconds = (coordinate) => {
+    var absolute = Math.abs(coordinate);
+    var degrees = Math.floor(absolute);
+    var minutesNotTruncated = (absolute - degrees) * 60;
+    var minutes = Math.floor(minutesNotTruncated);
+    var seconds = Math.floor((minutesNotTruncated - minutes) * 60);
+
+    return degrees + "°" + minutes + "’" + seconds+"\"";
+}
+
+export const convertDMS = (lat, lng) => {
+    var latitude = toDegreesMinutesAndSeconds(lat);
+    var latitudeCardinal = lat >= 0 ? "N" : "S";
+
+    var longitude = toDegreesMinutesAndSeconds(lng);
+    var longitudeCardinal = lng >= 0 ? "E" : "W";
+
+    return latitude + "" + latitudeCardinal + " , " + longitude + " " + longitudeCardinal;
+}
+
+export const deg2rad = (deg) => {
+    return deg * (Math.PI/180)
+}
+
+export const getDistanceFromLatLonInKm = (lat1,lon1,lat2,lon2) => {
+    var R = 6371; // Radius of the earth in km
+    var dLat = deg2rad(lat2-lat1);  // deg2rad below
+    var dLon = deg2rad(lon2-lon1); 
+    var a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2)
+      ; 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; // Distance in km
+    return d;
+  }
+  

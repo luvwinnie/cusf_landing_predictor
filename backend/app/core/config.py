@@ -1,17 +1,19 @@
+import os
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+from pydantic import (AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn,
+                      validator)
 
 
 class Settings(BaseSettings):
-    
+
     api_v1_str: str = "/api/v1"
     secret_key: str = secrets.token_urlsafe(32)
 
-    project_name: str
+    project_name: str = os.getenv("PROJECT_NAME")
     access_token_expire_minutes: int = 60 * 24 * 8
-    server_name: str
+    server_name: str = os.getenv("cusf_predictor")
     # server_host: AnyHttpUrl
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200", "http://localhost:3000", \
@@ -25,17 +27,16 @@ class Settings(BaseSettings):
         elif isinstance(v, (list, str)):
             return v
         raise ValueError(v)
-    
-    postgres_server: str
-    postgres_port:str
-    postgres_user: str
-    postgres_password: str
-    postgres_db: str
-    sqlalchemy_database_uri: Optional[PostgresDsn] = None
+
+    db_server: str = os.getenv("DB_SERVER", "db")
+    db_port: str = os.getenv("DB_PORT", "3306")
+    db_user: str = os.getenv("DB_USER", "cusf_predictor")
+    db_password: str = os.getenv("DB_PASSWORD", "cusf_predictor")
+    db_name: str = os.getenv("DB_BANE", "cusf_predictor_app")
+    # sqlalchemy_database_uri: Optional[PostgresDsn] = None
 
     # Predictor settings
     elevation_dataset: Optional[str]
-    
 
 
 settings = Settings()

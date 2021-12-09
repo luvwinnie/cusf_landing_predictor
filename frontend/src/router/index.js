@@ -8,7 +8,7 @@ const routes = [
     { path: "/", name: "Predictor", component: Predictor },
     {
         path: "/predictor",
-        name: "Predictor",
+        name: "PredictorPage",
         component: Predictor,
     },
     {
@@ -18,7 +18,7 @@ const routes = [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () =>
-            import(/* webpackChunkName: "about" */ "../views/About.vue"),
+            import(/* webpackChunkName: "about" */ "../views/Hourly.vue"),
     },
 ];
 

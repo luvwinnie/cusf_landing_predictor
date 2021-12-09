@@ -1,12 +1,11 @@
 <template>
-    
         <LMap
-            @click="clickPos"
             @mousemove="updateMousePos($event)"
+            @click="clickUpdateMarkerPos($event)"
             ref="map"
             :zoom="zoom"
             :center="center"
-            style="z-index:0;height: calc(100vh - 64px);"
+            style="z-index:0;height:100%;"
         >
             <LControlLayers position="topleft"></LControlLayers>
             <LControl :position="'topright'" class="custom-control-watermark">
@@ -14,8 +13,7 @@
                     v-model="isLoading"
                     hide-overlay
                     persistent
-                    width="300"
-                >
+                    width="300">
                     <v-card color="primary" dark>
                         <v-card-text>
                             Loading...
@@ -33,19 +31,23 @@
                             <div class="mb-4">
                                 <h4>Scenario Information</h4>
                                 Mouse position: Lat:{{ mousePos["lat"] }} Lon:{{mousePos["lng"]}}
-                                <p v-if="prediction !== null">
-                                Range: {{prediction.range}} km, Flight Time:{{prediction.flight_time.toFixed(2)}}hours
-                                <br>
+                                <p v-if="selectedPrediction !== null">
                                 <span>
-                                Landing(DMS):{{prediction.landing_location}}
+                                Landing(DMS):{{selectedPrediction.landing_location}}
                                 </span>
                                 <br>
                                 <span>
-                                Landing(DD):{{prediction.landing_location_dd}}
+                                Landing(DD):{{selectedPrediction.landing_location_dd}}
                                 </span>
-
+                                <br>
+                                <span>
+                                Range: {{selectedPrediction.range}} km, Flight Time:{{selectedPrediction.flight_time.toFixed(2)}}hours
+                                </span>
+                                <br>
+                                <span>
+                                Using model: {{selectedPrediction.used_model}}
+                                </span>
                                 </p>
-                                <span v-if="prediction !== null">Using model: {{prediction.used_model}}</span>
                                 
                             </div>
                             <v-row align="center" justify="space-around">
@@ -58,7 +60,8 @@
                     </v-list-item>
                 </v-card>
             </LControl>
-            <PredictForm />
+            <HourlyPredictForm/>
+            <HourlyShowPathCard/>
             <LTileLayer
                 v-for="tileProvider in tileProviders"
                 :key="tileProvider.name"
@@ -79,14 +82,19 @@
                 :options="googletileProvider.options"
                 layerType="base"
             />
-            <LMarker :lat-lng="[52.2135, 1.0964]"></LMarker>
+            <LMarker
+                :latLng="markerPos"
+                :draggable="this.draggable"
+                @update:latLng="updateMarkerPos"
+            ></LMarker>
 
-            <Prediction
+            <HourlyPrediction
                 v-if="prediction !== null"
                 :pred="this.prediction"
-            ></Prediction>
+                :landing_line="this.landing_line"
+                :showPaths="this.showPaths"
+            ></HourlyPrediction>
         </LMap>
-    
 </template>
 
 <script>
@@ -97,23 +105,25 @@ import {
     LMarker,
     LControl,
 } from "vue2-leaflet";
-import Prediction from "@/components/Prediction.vue";
-import PredictForm from "@/components/PredictForm.vue";
+import HourlyShowPathCard from "@/components/HourlyShowPathCard.vue";
+import HourlyPrediction from "@/components/HourlyPrediction.vue";
+import HourlyPredictForm from "@/components/HourlyPredictForm.vue";
 import AboutDialog from "@/components/AboutDialog.vue";
 import moment from "moment-timezone/moment-timezone";
 import { mapActions, mapState, mapGetters } from "vuex";
 import Vue2LeafletGoogleMutant from "vue2-leaflet-googlemutant";
 
 export default {
-    name: "Predictor",
+    name: "HourlyPredictor",
     components: {
         LMap,
         LTileLayer,
         LMarker,
         LControl,
         LControlLayers,
-        PredictForm,
-        Prediction,
+        HourlyShowPathCard,
+        HourlyPredictForm,
+        HourlyPrediction,
         AboutDialog,
         Vue2LeafletGoogleMutant,
     },
@@ -124,6 +134,7 @@ export default {
             zoom: 5,
             center: [37.4263, 138.8195],
             bounds: null,
+            draggable: true,
             // googleOption: {
             //     name: "Google Map",
             //     region: "JP",
@@ -205,14 +216,18 @@ export default {
         };
     },
     methods: {
-        ...mapActions("predictors", ["updateMousePos", "clickPos"]),
+        ...mapActions("predictors", ["updateMousePos"]),
+        ...mapActions("hourly", ["updateMarkerPos","clickUpdateMarkerPos"]),
     },
     computed: {
-        ...mapState("predictors", [
+        ...mapState("predictors", ["mousePos", "form_inputs"]),
+        ...mapState("hourly", [
             "api",
-            "mousePos",
             "prediction",
-            "form_inputs",
+            "landing_line",
+            "markerPos",
+            "showPaths",
+            "selectedPrediction"
         ]),
         ...mapGetters(["isLoading"]),
     },
@@ -220,7 +235,13 @@ export default {
         moment.tz.add(
             "Asia/Tokyo|JST JDT|-90 -a0|010101010|-QJJ0 Rc0 1lc0 14o0 1zc0 Oo0 1zc0 Oo0|38e6"
         );
-        console.log("ref:",this.$ref);
     },
 };
 </script>
+
+
+<style>
+span {
+    padding:5px 0 0 5px;
+}
+</style>

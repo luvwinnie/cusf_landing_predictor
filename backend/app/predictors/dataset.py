@@ -29,14 +29,14 @@ itself is not particularly useful.  :mod:`tawhiri.interpolate` casts it (via a
 memory view) to a pointer in Cython.
 """
 
-from collections import namedtuple
+import logging
 import mmap
+import operator
 import os
 import os.path
 import signal
-import operator
+from collections import namedtuple
 from datetime import datetime
-import logging
 
 logger = logging.getLogger("tawhiri.dataset")
 
@@ -79,7 +79,7 @@ class Dataset(object):
                          475, 525, 575, 625, 675, 725, 775, 825, 875]
 
     _axes_type = namedtuple("axes",
-                ("hour", "pressure", "variable", "latitude", "longitude"))
+                            ("hour", "pressure", "variable", "latitude", "longitude"))
 
     #: The values of the points on each axis: a 5-(named)tuple ``(hour,
     #: pressure variable, latitude, longitude)``.
@@ -95,7 +95,7 @@ class Dataset(object):
     )
 
     _listdir_type = namedtuple("dataset_in_row",
-                ("ds_time", "suffix", "filename", "path"))
+                               ("ds_time", "suffix", "filename", "path"))
 
     assert shape == tuple(len(x) for x in axes)
 
@@ -193,8 +193,8 @@ class Dataset(object):
 
         cached = cls.cached_latest
         valid = cached and \
-                cached.ds_time == latest and \
-                cached.directory == directory
+            cached.ds_time == latest and \
+            cached.directory == directory
 
         if valid:
             if persistent:
@@ -255,7 +255,7 @@ class Dataset(object):
                 sz = f.tell()
                 if sz != self.size:
                     raise ValueError("Dataset should be {0} bytes (was {1})"
-                                        .format(self.size, sz))
+                                     .format(self.size, sz))
             f.seek(0, 0)
 
             self.array = mmap.mmap(f.fileno(), 0, prot=prot, flags=flags)

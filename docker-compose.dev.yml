@@ -8,69 +8,110 @@ services:
             args:
                 - http_proxy=$http_proxy
                 - https_proxy=$https_proxy
-        env_file:
-            - .env
+        env_file: .env
         container_name: cusf_predictor_frontend
-        # depends_on: 
+        # depends_on:
         #     - backend
         ports:
             - "8080:8080"
         volumes:
             - ./frontend:/app
+        networks:
+            - cusf_predictor_network
+        depends_on:
+            - backend
+            - predictor_db
     backend:
         build:
             context: ./backend
             dockerfile: Dockerfile.dev
+        env_file: .env
         ports:
             - "8000:8000"
         volumes:
             - ./backend/app:/app
-            - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
-            - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
+            - ./tawhiri-datasets:/srv/tawhiri-datasets/
+            - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
         depends_on:
-            - db
-        env_file:
-            - .env
-    db:
-        image: postgres:12
-        volumes:
-        - ./app-db-data:/var/lib/postgresql/data/pgdata
-        env_file:
-            - .env
-        environment:
-        - PGDATA=/var/lib/postgresql/data/pgdata
-        ports:
-            - "5432:5432"
-    pgadmin:
-        container_name: pgadmin4_container
-        image: dpage/pgadmin4
-        env_file:
-            - .env
-        depends_on: 
-            - db
-        environment:
-            PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-        ports:
-            - "${PGADMIN_LISTEN_PORT}:${PGADMIN_LISTEN_PORT}"
-        restart: always
-    tawhiri_sel:
+            - predictor_db
+        networks:
+            - cusf_predictor_network
+    predictor_db:
         build:
-            context: ./tawhiri_sel
-            args:
-                - http_proxy=$http_proxy
-                - https_proxy=$https_proxy
-        env_file: 
-            - .env
-        container_name: tawhiri_app
+            context: ./
+            dockerfile: ./db/Dockerfile
+        container_name: predictor_db
+        env_file: .env
         ports:
-            - "5000:5000"
+            - "${DB_PORT}:${DB_PORT}"
         volumes:
-            - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
-            - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
+            # - ./log/mysql/:/var/log/mysql
+            # - ./db/mysql_init/:/docker-entrypoint-initdb.d/
+            - app_db_data:/var/lib/mysql
         environment:
-            - TZ=Asia/Tokyo
+            - MYSQL_DATABASE=${DB_NAME}
+            - MYSQL_USER=${DB_USER}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+            - TZ=${TZ}
+        networks:
+            - cusf_predictor_network
+        healthcheck:
+            test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
+            interval: "2s"
+            timeout: "1s"
+            start_period: "100s"
+            retries: 5
+        restart: always
+    tawhiri_downloader:
+        build:
+            context: ./tawhiri_downloader
+            dockerfile: Dockerfile
+        container_name: tawhiri_downloader
+        env_file: .env
+        volumes:
+            - ./tawhiri-datasets:/srv/tawhiri-datasets/
+            - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
+        networks:
+          - cusf_predictor_network
 
-# volumes:
-#     app-db-data:
+
+    # pgadmin:
+    #     container_name: pgadmin4_container
+    #     image: dpage/pgadmin4
+    #     env_file:
+    #         - .env
+    #     depends_on:
+    #         - db
+    #     environment:
+    #         PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    #         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+    #         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    #     ports:
+    #         - "${PGADMIN_LISTEN_PORT}:${PGADMIN_LISTEN_PORT}"
+    #     restart: always
+    # tawhiri_sel:
+    #     build:
+    #         context: ./tawhiri_sel
+    #         args:
+    #             - http_proxy=$http_proxy
+    #             - https_proxy=$https_proxy
+    #     env_file:
+    #         - .env
+    #     container_name: tawhiri_app
+    #     ports:
+    #         - "8081:8081"
+    #     volumes:
+    #         - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
+    #         - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
+    #     environment:
+    #         - TZ=Asia/Tokyo
+    #     networks:
+    #         - cusf_predictor_network
+
+networks:
+    cusf_predictor_network:
+        external: true
+
+volumes:
+    app_db_data:

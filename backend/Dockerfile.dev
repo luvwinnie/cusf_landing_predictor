@@ -17,6 +17,22 @@ RUN pip3 install -r requirements.txt
 
 COPY ./app /app
 ENV PYTHONPATH=/app
-RUN python build_cython.py build_ext --inplace
+# WORKDIR /app/predictors/
+# RUN cython interpolate.pyx && cython ruaumoko.pyx && cython solver.pyx && cython warnings.pyx
+# RUN gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC -I/usr/local/include/python3.7m -c ./interpolate.c -o ./interpolate.o
+# RUN gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC -I/usr/local/include/python3.7m -c ./ruaumoko.c -o ./ruaumoko.o
+# RUN gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC -I/usr/local/include/python3.7m -c ./solver.c -o ./solver.o
+# RUN gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -fPIC -I/usr/local/include/python3.7m -c ./warnings.c -o ./warnings.o
 
+# RUN gcc -pthread -shared ./interpolate.o -L/usr/local/lib -lpython3.7m -o ./interpolate.cpython-37m-x86_64-linux-gnu.so
+# RUN gcc -pthread -shared ./ruaumoko.o -L/usr/local/lib -lpython3.7m -o ./ruaumoko.cpython-37m-x86_64-linux-gnu.so
+# RUN gcc -pthread -shared ./solver.o -L/usr/local/lib -lpython3.7m -o ./solver.cpython-37m-x86_64-linux-gnu.so
+# RUN gcc -pthread -shared ./warnings.o -L/usr/local/lib -lpython3.7m -o ./warnings.cpython-37m-x86_64-linux-gnu.so
+
+# WORKDIR /app/predictors
+# RUN python setup.py build_ext --inplace
+RUN python build_cython.py build_ext --inplace
+# RUN cp /app/predictors/app/ /app/
+# WORKDIR /app/
 CMD ["uvicorn", "main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
+

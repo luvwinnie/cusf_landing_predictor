@@ -1,7 +1,12 @@
-fastapi
+fastapi[all]
 alembic
 uvicorn
-psycopg2
 Cython
+python-dateutil
 strict_rfc3339
+rfc3339
 magicmemoryview
+mysql-connector-python
+sqlalchemy
+mysqlclient
+sqlalchemy-utils

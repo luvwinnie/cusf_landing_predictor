@@ -104,3 +104,13 @@
         </v-card>
     </v-dialog>
 </template>
+
+<script>
+import { mapState } from "vuex";
+export default {
+    name: "AboutDialog",
+    computed: {
+        ...mapState("hourly", ["prediction", "form_inputs"]),
+    },
+}
+</script>

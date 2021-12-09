@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import hourly from "./modules/hourly";
 import predictors from "./modules/predictors";
 
 Vue.use(Vuex);
@@ -20,5 +21,5 @@ export default new Vuex.Store({
             commit("updateIsLoading", isLoading);
         },
     },
-    modules: { predictors },
+    modules: { predictors, hourly },
 });

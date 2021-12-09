@@ -1,25 +1,28 @@
-import os
 import datetime
+import os
+from datetime import timedelta
 from typing import Optional
-from fastapi import APIRouter, Depends, status, HTTPException
-from fastapi.encoders import generate_encoders_by_class_tuples
+
+from common.custom_exception import (InternalException, PredictionException,
+                                     RequestException)
+from common.utils import (API_VERSION, LATEST_DATASET_KEYWORD, PROFILE_FLOAT,
+                          PROFILE_STANDARD, _datetime_to_rfc3339,
+                          _rfc3339_to_datetime, _rfc3339_to_timestamp,
+                          _timestamp_to_rfc3339, ruaumoko_ds)
 from core.config import settings
-from predictors import interpolate
-from predictors.warnings import WarningCounts
-from predictors.dataset import Dataset as WindDataset
-from predictors import solver,models
-
 from db import database
-from common.utils import _rfc3339_to_timestamp,_timestamp_to_rfc3339,ruaumoko_ds,\
-    API_VERSION,PROFILE_STANDARD,PROFILE_FLOAT,LATEST_DATASET_KEYWORD
-from common.custom_exception import RequestException,InternalException,PredictionException
-
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.encoders import generate_encoders_by_class_tuples
+from predictors import interpolate, models, solver
+from predictors.dataset import Dataset as WindDataset
+from predictors.warnings import WarningCounts
 
 router = APIRouter(
     prefix=f"{settings.api_v1_str}/predictor",
     tags=['Predictor']
 )
 get_db = database.get_db
+
 
 def run_prediction(req):
     """
@@ -32,6 +35,7 @@ def run_prediction(req):
     }
 
     warningcounts = WarningCounts()
+    print("req:", req)
 
     # Find wind data location
     ds_dir = os.getenv('WIND_DATASET_DIR', WindDataset.DEFAULT_DIRECTORY)
@@ -40,6 +44,7 @@ def run_prediction(req):
     try:
         if req['dataset'] == LATEST_DATASET_KEYWORD:
             tawhiri_ds = WindDataset.open_latest(persistent=True, directory=ds_dir)
+            print("tawhiri_ds:",tawhiri_ds,tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z"))
         else:
             tawhiri_ds = WindDataset(datetime.fromtimestamp(req['dataset']), directory=ds_dir)
     except IOError:
@@ -49,7 +54,7 @@ def run_prediction(req):
 
     # Note that hours and minutes are set to 00 as Tawhiri uses hourly datasets
     resp['request']['dataset'] = \
-            tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z")
+        tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z")
 
     # Stages
     if req['profile'] == PROFILE_STANDARD:
@@ -91,8 +96,11 @@ def run_prediction(req):
             resp['request'][key] = _timestamp_to_rfc3339(resp['request'][key])
 
     resp["warnings"] = warningcounts.to_dict()
+    resp["used_model"] = tawhiri_ds.ds_time.strftime("%Y%m%d%H")
+    
 
     return resp
+
 
 def _parse_stages(labels, data):
     """
@@ -109,9 +117,10 @@ def _parse_stages(labels, data):
             'longitude': lon,
             'altitude': alt,
             'datetime': _timestamp_to_rfc3339(dt),
-            } for dt, lat, lon, alt in leg]
+        } for dt, lat, lon, alt in leg]
         prediction.append(stage)
     return prediction
+
 
 def parse_request(data):
     """
@@ -198,22 +207,21 @@ def _extract_parameter(data, parameter, cast, default=None, ignore=False,
     return result
 
 
-
 @router.get('/predict')
-def get_user(profile:str,launch_datetime:str,
-    launch_latitude:float,launch_longitude:float,
-    launch_altitude:int,burst_altitude:int,
-    ascent_rate:int,descent_rate:int
-    ):
+def get_user(profile: str, launch_datetime: str,
+             launch_latitude: float, launch_longitude: float,
+             launch_altitude: int, burst_altitude: int,
+             ascent_rate: float, descent_rate: float
+             ):
     data = {
-        "profile":profile,
-        "launch_datetime":launch_datetime,
-        "launch_latitude":launch_latitude,
-        "launch_longitude":launch_longitude,
-        "launch_altitude":launch_altitude,
-        "burst_altitude":burst_altitude,
-        "ascent_rate":ascent_rate,
-        "descent_rate":descent_rate,
+        "profile": profile,
+        "launch_datetime": launch_datetime,
+        "launch_latitude": launch_latitude,
+        "launch_longitude": launch_longitude,
+        "launch_altitude": launch_altitude,
+        "burst_altitude": burst_altitude,
+        "ascent_rate": ascent_rate,
+        "descent_rate": descent_rate,
     }
     print(profile)
     print(launch_datetime)
@@ -221,3 +229,55 @@ def get_user(profile:str,launch_datetime:str,
     # print(launch_datetime.strptime(iso_str, '%Y-%m-%dT%H:%M:%S.%fZ'))
     # print(_rfc3339_to_timestamp(launch_datetime))
     return run_prediction(parse_request(data))
+
+
+@router.get('/predict_hourly')
+def get_user(profile: str, dataset: str, launch_datetime: str, number_of_hours: int,
+             launch_latitude: float, launch_longitude: float,
+             launch_altitude: float, burst_altitude: float,
+             ascent_rate: float, descent_rate: float
+             ):
+    print("Predict hourly:", launch_datetime)
+    dt = _rfc3339_to_datetime(launch_datetime)
+    datetime_list = [_datetime_to_rfc3339(dt)]
+    for i in range(1, number_of_hours):
+        datetime_list.append(_datetime_to_rfc3339(dt+timedelta(hours=i)))
+    print(datetime_list)
+    prediction_list = []
+    data = {
+        "profile": profile,
+        "launch_datetime": launch_datetime,
+        "launch_latitude": launch_latitude,
+        "launch_longitude": launch_longitude,
+        "launch_altitude": launch_altitude,
+        "burst_altitude": burst_altitude,
+        "ascent_rate": ascent_rate,
+        "descent_rate": descent_rate,
+    }
+
+    for date in datetime_list:
+        print(date)
+        data["launch_datetime"] = date
+        prediction_list.append(run_prediction(parse_request(data)))
+    print(len(prediction_list))
+    return prediction_list
+    # for i in
+
+    # _extract_parameter(data, "launch_datetime", _rfc3339_to_timestamp)
+    # data = {
+    #     "profile": profile,
+    #     "launch_datetime": launch_datetime,
+    #     "launch_latitude": launch_latitude,
+    #     "launch_longitude": launch_longitude,
+    #     "launch_altitude": launch_altitude,
+    #     "burst_altitude": burst_altitude,
+    #     "ascent_rate": ascent_rate,
+    #     "descent_rate": descent_rate,
+    # }
+    # # print(profile)
+    # # print(launch_datetime)
+    # # print(run_prediction(parse_request(data)))
+    # # parse_request(data)
+    # # print(launch_datetime.strptime(iso_str, '%Y-%m-%dT%H:%M:%S.%fZ'))
+    # # print(_rfc3339_to_timestamp(launch_datetime))
+    # return run_prediction(parse_request(data))

@@ -20,7 +20,7 @@ services:
         env_file: .env
         container_name: tawhiri_app
         ports:
-            - "5000:5000"
+            - "5001:5000"
         volumes:
             - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
             - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/

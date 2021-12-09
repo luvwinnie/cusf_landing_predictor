@@ -2,7 +2,11 @@
     <div id="app">
         <v-app>
             <v-app-bar app color="black" dark>
-                <v-app-bar-nav-icon></v-app-bar-nav-icon>
+                <v-app-bar-nav-icon
+                    @click.stop="drawer = !drawer"
+                    class="hidden-md-and-up"
+                ></v-app-bar-nav-icon>
+
                 <div class="d-flex align-center">
                     <v-img
                         alt="Vuetify Logo"
@@ -23,24 +27,42 @@
                     />
                 </div>
                 <v-spacer></v-spacer>
-                <template>
-                    <v-tabs dark v-model="tab" align-with-title>
+                
+                    <v-tabs
+                        dark
+                        v-model="this.selectedTab"
+                        align-with-title
+                        class="hidden-sm-and-down">
                         <v-tab
-                            v-for="tab in items"
-                            :key="tab.id"
-                            :to="tab.route"
-                            exact
-                        >
-                            {{ tab.name }}
+                            v-for="tab_item in items"
+                            :key="tab_item.id"
+                            :to="tab_item.route"
+                            exact>
+                            {{ tab_item.name }}
                         </v-tab>
                     </v-tabs>
-                </template>
+                
                 <v-spacer></v-spacer>
             </v-app-bar>
 
             <v-main>
-                <router-view />
-                <!-- <Map :api_url="api_url" /> -->
+                <v-navigation-drawer v-model="drawer" absolute bottom dark>
+                    <v-list nav dense>
+                        <v-list-item-group v-model="group">
+                            <v-list-item
+                                v-for="tab_item in items"
+                                :key="tab_item.id"
+                                :to="tab_item.route">
+                                <v-list-item-title>{{
+                                    tab_item.name
+                                }}</v-list-item-title>
+                            </v-list-item>
+                        </v-list-item-group>
+                    </v-list>
+                </v-navigation-drawer>
+                <v-slide-x-transition mode="out-in">
+                    <router-view />
+                </v-slide-x-transition>
             </v-main>
         </v-app>
     </div>
@@ -50,12 +72,19 @@
 export default {
     name: "App",
     data: () => ({
-        tab: "/",
+        selectedTab: "/",
+        drawer: false,
+        group: null,
         items: [
             { id: 1, name: "Predictor", route: `/` },
-            { id: 2, name: "Houlr", route: `/hourly` },
+            { id: 2, name: "Hourly", route: `/hourly` },
         ],
     }),
+    watch: {
+        group() {
+            this.drawer = false;
+        },
+    },
 };
 </script>
 
@@ -66,10 +95,13 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
+    // padding: 0px;
+    // margin:0px;
+    overflow:hidden;
 }
 
 #nav {
-    padding: 30px;
+    // padding: 30px;
 
     a {
         font-weight: bold;
@@ -80,4 +112,18 @@ export default {
         }
     }
 }
+
+// .map-wrapper { width: 100%; height:100%; position: absolute;}
+// #map { width: 100%; height:100%; position: relative;}
+
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
+}
+
 </style>

@@ -1,7 +1,7 @@
 <template>
     <!-- <div> -->
     <LControl :position="'bottomright'" class="custom-control-watermark">
-        <v-responsive max-width="600" class="mx-auto mb-4">
+        <v-responsive max-width="600" class="mx-auto mb-6 xs-12">
             <v-expansion-panels popout>
                 <v-expansion-panel>
                     <v-expansion-panel-header>
@@ -99,6 +99,16 @@
                                 required
                             ></v-text-field>
                         </v-col>
+                        <v-col cols="2">
+                            <v-text-field
+                                v-model="
+                                    form_inputs.numberOfHours
+                                "
+                                :count="2"
+                                label="NumberOfHours"
+                                required
+                            ></v-text-field>
+                        </v-col>
                         </v-row>
                         <v-row>
                             <v-col cols=3>
@@ -130,13 +140,18 @@
                         </v-row>
                         <v-row justify="center">
                             <v-spacer></v-spacer>
-                            <v-col cols=4>
+                            <v-col cols=6>
                             <v-btn
                                 @click="clearPrediction($event)"
                                 small outlined rounded text>
                                 Reset
                             </v-btn>
                             </v-col>
+                            <v-col cols=6>
+                            <v-btn @click="predictHourly($event)"
+                                small outlined rounded text>
+                                Run
+                            </v-btn></v-col>
                             
                             <v-spacer></v-spacer>
                 
@@ -155,7 +170,7 @@ import { mapActions, mapState } from "vuex";
 import BurstCalculator from "@/components/BurstCalculator.vue";
 
 export default {
-    name: "PredictForm",
+    name: "HourlyPredictForm",
     components: {
         LControl,
         BurstCalculator,
@@ -165,10 +180,11 @@ export default {
     },
 
     methods: {
-        ...mapActions("predictors", ["clearPrediction","updateLat","updateLng"]),
+        ...mapActions("hourly", ["predictHourly","updateLat"]),
     },
     computed: {
-        ...mapState("predictors", ["prediction", "form_inputs","datasets"]),
+        ...mapState("predictors", ["form_inputs"]),
+        ...mapState("hourly", ["prediction", "datasets"]),
     },
 };
 </script>

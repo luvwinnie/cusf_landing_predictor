@@ -6,6 +6,7 @@
             ref="map"
             :zoom="zoom"
             :center="center"
+            style="z-index:0;"
         >
             <LControlLayers position="topleft"></LControlLayers>
             <LControl :position="'topright'" class="custom-control-watermark">
@@ -110,7 +111,7 @@ export default {
             prediction: null,
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
             zoom: 8,
-            center: [52.2135, 0.0964],
+            center: [37.4263, 138.8195],
             bounds: null,
             tileProviders: [
                 {
