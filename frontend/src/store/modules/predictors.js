@@ -2,7 +2,9 @@ import { convertDMS, getDistanceFromLatLonInKm, parsePrediction } from "@/common
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
 // import state from "./form_states";
-
+var currentDate = new Date();
+var timezone = "Asia/Tokyo";
+var currentDateJst = moment(currentDate).tz(timezone);
 
 const state = {
     api: process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict",
@@ -28,9 +30,9 @@ const state = {
             { key: "Nov", value: 11 },
             { key: "Dec", value: 12 },
         ],
-        selectDay: "27",
-        selectMonth: 11,
-        selectYear: "2021",
+        selectDay: currentDateJst.add(1,"days").format("D"),
+        selectMonth: parseInt(currentDateJst.format("M")),
+        selectYear: currentDateJst.format("YYYY"),
         selectHours: "10",
         selectMinutes: "00",
         numberOfHours: 24,
