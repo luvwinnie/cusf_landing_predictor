@@ -48,8 +48,10 @@ def run_prediction(req):
         else:
             tawhiri_ds = WindDataset(datetime.fromtimestamp(req['dataset']), directory=ds_dir)
     except IOError:
+        print("No matching dataset found.")
         raise InvalidDatasetException(msg="No matching dataset found.")
     except ValueError as e:
+        print("{}".format(*e.args))
         raise InvalidDatasetException(msg="{}".format(*e.args))
 
     # Note that hours and minutes are set to 00 as Tawhiri uses hourly datasets
