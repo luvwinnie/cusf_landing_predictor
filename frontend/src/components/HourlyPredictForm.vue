@@ -153,7 +153,7 @@
                             <v-col cols=6>
                             <v-btn @click="predictHourly($event)"
                                 small outlined rounded text>
-                                Run
+                                Run Prediction
                             </v-btn></v-col>
                             
                             <v-spacer></v-spacer>

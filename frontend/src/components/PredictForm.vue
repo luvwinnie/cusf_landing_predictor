@@ -133,14 +133,14 @@
                         </v-row>
                         <v-row justify="center">
                             <v-spacer></v-spacer>
-                            <v-col cols=4>
+                            <v-col cols=6>
                             <v-btn
                                 @click="clearPrediction($event)"
                                 small outlined rounded text>
                                 Reset
                             </v-btn>
                             </v-col>
-                            <v-col cols=4>
+                            <v-col cols=6>
                             <v-btn 
                                 @click="runPrediction($event)"
                                 small outlined rounded text>
