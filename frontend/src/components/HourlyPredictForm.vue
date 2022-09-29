@@ -183,7 +183,7 @@ export default {
     },
 
     methods: {
-        ...mapActions("hourly", ["predictHourly","updateLat","selectPosition"]),
+        ...mapActions("hourly", ["predictHourly","updateLat","selectPosition","clearPrediction"]),
         // ...mapActions("predictors",["selectPosition"]),
     },
     computed: {

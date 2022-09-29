@@ -54,6 +54,16 @@ const actions = {
         rootState.predictors.form_inputs.lng = e;
         commit("updateMarkerPos", newMarkerPos);
     },
+    async clearPrediction({ state, commit, rootState }, e) {
+        var prediction_arr = [];
+        var prediction_hourly_line = [];
+        var showPaths = [];
+        var used_model = null;
+        commit("updatePrediction", prediction_arr);
+        commit("updatePredictionLine", prediction_hourly_line);
+        commit("updateShowPath", showPaths);
+        commit("updateUsedModel", used_model);
+    },
     async predictHourly({ commit, rootState }) {
         this.dispatch("setLoading", true, { root: true });
         // var getTime = moment.tz(
