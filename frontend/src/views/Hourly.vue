@@ -5,7 +5,8 @@
             ref="map"
             :zoom="zoom"
             :center="center"
-            style="z-index:0;height:90vh;display:flex;"
+
+            style="z-index:0;height: calc(100vh - 64px);"
         >
             <LControlLayers position="topleft"></LControlLayers>
             <LControl :position="'topright'" class="custom-control-watermark">

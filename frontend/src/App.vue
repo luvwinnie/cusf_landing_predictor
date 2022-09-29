@@ -12,14 +12,14 @@
                 
                     <v-tabs
                         dark
-                        v-model="this.selectedTab"
+                        :v-model="selectedTab"
                         align-with-title
                         class="hidden-sm-and-down">
                         <v-tab
                             v-for="tab_item in items"
                             :key="tab_item.id"
                             :to="tab_item.route"
-                            exact>
+                            >
                             {{ tab_item.name }}
                         </v-tab>
                     </v-tabs>
@@ -54,7 +54,7 @@
 export default {
     name: "App",
     data: () => ({
-        selectedTab: "/",
+        selectedTab: "Predictor",
         drawer: false,
         group: null,
         items: [
