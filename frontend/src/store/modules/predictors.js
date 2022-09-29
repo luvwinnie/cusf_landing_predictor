@@ -223,6 +223,7 @@ const actions = {
         state.center = [state.form_inputs.lat, e];
         rootState.hourly.commit("updateMarkerPos", newMarkerPos);
 
+
     },
 };
 

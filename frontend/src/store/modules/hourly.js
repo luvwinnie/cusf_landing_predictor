@@ -20,6 +20,7 @@ const actions = {
     async selectPosition({ state, commit, rootState }, e) {
         rootState.predictors.form_inputs.lat = e.lat;
         rootState.predictors.form_inputs.lng = e.lng;
+        rootState.predictors.center = [e.lat, e.lng];
         var newMarkerPos = [e.lat, e.lng];
         // this.dispatch("updateMarkerPos", newMarkerPos);
         commit("updateMarkerPos", newMarkerPos);
@@ -31,9 +32,11 @@ const actions = {
         var newMarkerPos = [e.lat, e.lng];
         rootState.predictors.form_inputs.lat = newMarkerPos[0];
         rootState.predictors.form_inputs.lng = newMarkerPos[1];
+
+        rootState.predictors.center = [newMarkerPos[0], newMarkerPos[1]];
         commit("updateMarkerPos", newMarkerPos);
     },
-    async clickUpdateMarkerPos({ commit }, e) {
+    async clickUpdateMarkerPos({ state, commit, rootState }, e) {
         var newMarkerPos = [e.latlng["lat"], e.latlng["lng"]];
         commit("updateMarkerPos", newMarkerPos);
 

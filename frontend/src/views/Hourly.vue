@@ -140,7 +140,7 @@ export default {
             }),
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
             zoom: 5,
-            center: [37.4263, 138.8195],
+            // center: [37.4263, 138.8195],
             bounds: null,
             draggable: true,
             // googleOption: {
@@ -228,7 +228,7 @@ export default {
         ...mapActions("hourly", ["updateMarkerPos","clickUpdateMarkerPos"]),
     },
     computed: {
-        ...mapState("predictors", ["mousePos", "form_inputs"]),
+        ...mapState("predictors", ["mousePos", "form_inputs","center"]),
         ...mapState("hourly", [
             "api",
             "prediction",
