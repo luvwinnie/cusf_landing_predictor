@@ -64,6 +64,7 @@ async def validation_exception_handler(request: Request, exc: NotYetImplementedE
 if settings.backend_cors_origins:
     app.add_middleware(
         CORSMiddleware,
+        # allow_origins=["*"],
         allow_origins=[str(origin) for origin in settings.backend_cors_origins],
         allow_credentials=True,
         allow_methods=["*"],

@@ -40,19 +40,23 @@ def run_prediction(req):
     # Find wind data location
     ds_dir = os.getenv('WIND_DATASET_DIR', WindDataset.DEFAULT_DIRECTORY)
 
+    # print(req)
     # Dataset
     try:
         if req['dataset'] == LATEST_DATASET_KEYWORD:
             tawhiri_ds = WindDataset.open_latest(persistent=True, directory=ds_dir)
-            print("tawhiri_ds:",tawhiri_ds,tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z"))
+            print("Latest tawhiri_ds:",tawhiri_ds,tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z"))
         else:
+            print("WindDataset",datetime.fromtimestamp(req['dataset']))
             tawhiri_ds = WindDataset(datetime.fromtimestamp(req['dataset']), directory=ds_dir)
     except IOError:
         print("No matching dataset found.")
         raise InvalidDatasetException(msg="No matching dataset found.")
     except ValueError as e:
-        print("{}".format(*e.args))
+        print("Value error {}".format(*e.args))
         raise InvalidDatasetException(msg="{}".format(*e.args))
+    except Exception as e:
+        print("Exception error:",e)
 
     # Note that hours and minutes are set to 00 as Tawhiri uses hourly datasets
     resp['request']['dataset'] = \
@@ -208,13 +212,17 @@ def _extract_parameter(data, parameter, cast, default=None, ignore=False,
 
     return result
 
+@router.get("/dataset-list")
+def get_dataset():
+    return {"dataset":[dataset_name for dataset_name in sorted(os.listdir(WindDataset.DEFAULT_DIRECTORY)) if "download" not in dataset_name]}
 
 @router.get('/predict')
-def get_user(profile: str, launch_datetime: str,
+def get_predict(profile: str, launch_datetime: str,
              launch_latitude: float, launch_longitude: float,
              launch_altitude: int, burst_altitude: int,
              ascent_rate: float, descent_rate: float
              ):
+    
     data = {
         "profile": profile,
         "launch_datetime": launch_datetime,
@@ -234,7 +242,7 @@ def get_user(profile: str, launch_datetime: str,
 
 
 @router.get('/predict_hourly')
-def get_user(profile: str, dataset: str, launch_datetime: str, number_of_hours: int,
+def get_predict_hourly(profile: str, launch_datetime: str, number_of_hours: int,
              launch_latitude: float, launch_longitude: float,
              launch_altitude: float, burst_altitude: float,
              ascent_rate: float, descent_rate: float

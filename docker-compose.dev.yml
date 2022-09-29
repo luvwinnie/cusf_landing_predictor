@@ -1,6 +1,23 @@
 version: "3"
 
 services:
+    nginx:
+        image: nginx:${NGINX_IMAGE_TAG}
+        container_name: nginx
+        ports:
+            - "443:443"
+            - "80:80"
+        environment:
+            - TZ
+        volumes:
+            - ${NGINX_CONFIG_PATH}:/etc/nginx/conf.d:ro
+            # - ${NGINX_DHPARAMS_FILE}:/dhparams4096.pem
+            - ${CERT_PATH}:/cert.pem:ro
+            - ${KEY_PATH}:/key.pem:ro
+            - ./volumes/nginx/logs:/var/log/nginx
+        restart: ${RESTART_POLICY}
+        networks:
+          - cusf_predictor_network
     frontend:
         build:
             context: ./frontend
@@ -20,7 +37,8 @@ services:
             - cusf_predictor_network
         depends_on:
             - backend
-            - predictor_db
+            # - predictor_db
+        restart: ${RESTART_POLICY}
     backend:
         build:
             context: ./backend
@@ -32,43 +50,45 @@ services:
             - ./backend/app:/app
             - ./tawhiri-datasets:/srv/tawhiri-datasets/
             - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
-        depends_on:
-            - predictor_db
+        # depends_on:
+        #     - predictor_db
         networks:
             - cusf_predictor_network
-    predictor_db:
-        build:
-            context: ./
-            dockerfile: ./db/Dockerfile
-        container_name: predictor_db
-        env_file: .env
-        ports:
-            - "${DB_PORT}:${DB_PORT}"
-        volumes:
-            # - ./log/mysql/:/var/log/mysql
-            # - ./db/mysql_init/:/docker-entrypoint-initdb.d/
-            - app_db_data:/var/lib/mysql
-        environment:
-            - MYSQL_DATABASE=${DB_NAME}
-            - MYSQL_USER=${DB_USER}
-            - MYSQL_PASSWORD=${DB_PASSWORD}
-            - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-            - TZ=${TZ}
-        networks:
-            - cusf_predictor_network
-        healthcheck:
-            test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
-            interval: "2s"
-            timeout: "1s"
-            start_period: "100s"
-            retries: 5
-        restart: always
+        restart: ${RESTART_POLICY}
+    # predictor_db:
+    #     build:
+    #         context: ./
+    #         dockerfile: ./db/Dockerfile
+    #     container_name: predictor_db
+    #     env_file: .env
+    #     ports:
+    #         - "${DB_PORT}:${DB_PORT}"
+    #     volumes:
+    #         # - ./log/mysql/:/var/log/mysql
+    #         # - ./db/mysql_init/:/docker-entrypoint-initdb.d/
+    #         - app_db_data:/var/lib/mysql
+    #     environment:
+    #         - MYSQL_DATABASE=${DB_NAME}
+    #         - MYSQL_USER=${DB_USER}
+    #         - MYSQL_PASSWORD=${DB_PASSWORD}
+    #         - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    #         - TZ=${TZ}
+    #     networks:
+    #         - cusf_predictor_network
+    #     healthcheck:
+    #         test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
+    #         interval: "2s"
+    #         timeout: "1s"
+    #         start_period: "100s"
+    #         retries: 5
+    #     restart: always
     tawhiri_downloader:
         build:
             context: ./tawhiri_downloader
             dockerfile: Dockerfile
         container_name: tawhiri_downloader
         env_file: .env
+        restart: ${RESTART_POLICY}
         volumes:
             - ./tawhiri-datasets:/srv/tawhiri-datasets/
             - ./ruaumoko-dataset:/srv/ruaumoko-dataset/

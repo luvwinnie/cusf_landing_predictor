@@ -79,7 +79,7 @@
                 :options="googletileProvider.options"
                 layerType="base"
             />
-            <LMarker :lat-lng="[52.2135, 1.0964]"></LMarker>
+            <LMarker :lat-lng="center" :icon="ballon_icon"></LMarker>
 
             <Prediction
                 v-if="prediction !== null"
@@ -103,6 +103,7 @@ import AboutDialog from "@/components/AboutDialog.vue";
 import moment from "moment-timezone/moment-timezone";
 import { mapActions, mapState, mapGetters } from "vuex";
 import Vue2LeafletGoogleMutant from "vue2-leaflet-googlemutant";
+import { icon } from "leaflet";
 
 export default {
     name: "Predictor",
@@ -120,19 +121,15 @@ export default {
     data() {
         return {
             // isLoading: false,
+            ballon_icon: icon({
+                iconUrl: require("@/assets/target-1-sm.png"),
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+                
+            }),
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
             zoom: 5,
-            center: [37.4263, 138.8195],
             bounds: null,
-            // googleOption: {
-            //     name: "Google Map",
-            //     region: "JP",
-            //     language: "jp",
-            //     visible: false,
-            //     options: {
-            //         type: "satellite",
-            //     },
-            // },
             googleMapProviders: [
                 {
                     name: "GoogleMap RoadMap",
@@ -213,6 +210,7 @@ export default {
             "mousePos",
             "prediction",
             "form_inputs",
+            "center",
         ]),
         ...mapGetters(["isLoading"]),
     },

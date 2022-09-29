@@ -166,7 +166,7 @@ export default {
                 ascentRate: 5,
                 descentRate: 5,
             },
-            api: process.env.VUE_APP_TAWHIRI_API_URL_2,
+            api: process.env.VUE_APP_TAWHIRI_API_URL,
             params: {},
         };
     },
@@ -185,7 +185,8 @@ export default {
             var getTime = moment.tz(
                 `${this.form_inputs.selectYear}-${this.form_inputs.selectMonth}-${this.form_inputs.selectDay} ${this.form_inputs.selectHours}:${this.form_inputs.selectMinutes}`,
                 "Asia/Tokyo"
-            );
+            ).replace(/-/g,"/");
+            console.log(getTime);
             var launch_time = getTime.utc();
             // console.log(getTime + " " + launch_time);
             this.lat = event.latlng["lat"];

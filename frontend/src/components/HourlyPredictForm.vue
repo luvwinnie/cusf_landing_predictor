@@ -14,11 +14,14 @@
                                 label="Launch Site"
                                 v-model="form_inputs.launchsite"
                                 :items="form_inputs.items"
+                                item-text="key"
+                                item-value="postition"
+                                @change="selectPosition($event)"
                             ></v-select>
                             </v-col>
                             <v-col cols=6>
                             <v-combobox
-                            v-model="form_inputs.selectDataset"
+                            v-model="form_inputs.dataset"
                             :items="datasets"
                             label="Select should use latest dataset"
                             ></v-combobox>
@@ -180,7 +183,8 @@ export default {
     },
 
     methods: {
-        ...mapActions("hourly", ["predictHourly","updateLat"]),
+        ...mapActions("hourly", ["predictHourly","updateLat","selectPosition"]),
+        // ...mapActions("predictors",["selectPosition"]),
     },
     computed: {
         ...mapState("predictors", ["form_inputs"]),

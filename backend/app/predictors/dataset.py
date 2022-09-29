@@ -150,14 +150,18 @@ class Dataset(object):
                               suffix contained in this set
         :rtype: (named) tuples ``(dataset time, suffix, filename, full path)``
         """
-
+        print(sorted(os.listdir(directory)))
         for filename in os.listdir(directory):
-            if len(filename) < 10:
-                continue
+            # if len(filename) < 10:
+            #     continue
 
             ds_time_str = filename[:10]
+            if "download" in ds_time_str:
+                continue
+            
             try:
                 ds_time = datetime.strptime(ds_time_str, "%Y%m%d%H")
+                print("ds_time:",datetime.strptime(ds_time_str, "%Y%m%d%H"))
             except ValueError:
                 pass
             else:
@@ -213,6 +217,8 @@ class Dataset(object):
 
             return ds
 
+    
+
     def __init__(self, ds_time, directory=DEFAULT_DIRECTORY, new=False):
         """
         Open the dataset file for `ds_time`, in `directory`
@@ -232,6 +238,7 @@ class Dataset(object):
         self.new = new
 
         self.fn = self.filename(self.ds_time, directory=self.directory)
+        print("get_file name:",self.fn)
 
         prot = mmap.PROT_READ
         flags = mmap.MAP_SHARED
@@ -244,7 +251,7 @@ class Dataset(object):
             mode = "rb"
             msg = "read"
 
-        logger.info("Opening dataset %s %s (%s)", self.ds_time, self.fn, msg)
+        print("Opening dataset %s %s (%s)", self.ds_time, self.fn, msg)
 
         with open(self.fn, mode) as f:
             if new:

@@ -1,50 +1,144 @@
 version: "3"
 
 services:
+    nginx:
+        image: nginx:${NGINX_IMAGE_TAG}
+        container_name: nginx
+        security_opt:
+            - no-new-privileges:true
+        pids_limit: 100
+        read_only: true
+        ports:
+            - "443:443"
+            - "80:80"
+        tmpfs:
+            - /var/log/nginx
+            - /var/run
+            - /var/cache
+        environment:
+            - TZ
+        volumes:
+            - ${NGINX_CONFIG_PATH}:/etc/nginx/conf.d:ro
+            # - ${NGINX_DHPARAMS_FILE}:/dhparams4096.pem
+            - ${CERT_PATH}:/cert.pem:ro
+            - ${KEY_PATH}:/key.pem:ro
+        restart: ${RESTART_POLICY}
+        networks:
+          - cusf_predictor_network
     frontend:
         build:
             context: ./frontend
+            dockerfile: Dockerfile.dev
             args:
                 - http_proxy=$http_proxy
                 - https_proxy=$https_proxy
-        container_name: cusf_predictor_frontend
         env_file: .env
+        container_name: cusf_predictor_frontend
+        # depends_on:
+        #     - backend
         ports:
             - "8080:8080"
-    tawhiri_sel:
-        build:
-            context: ./tawhiri_sel
-            args:
-                - http_proxy=$http_proxy
-                - https_proxy=$https_proxy
-        env_file: .env
-        container_name: tawhiri_app
-        ports:
-            - "5001:5000"
         volumes:
-            - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
-            - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
-              # - ./app/medical:/var/www/medical/
-              # - ./log/nginx/:/var/log/nginx/
-              # - ./log/uwsgi/:/var/log/uwsgi/
-        environment:
-            - TZ=Asia/Tokyo
+            - ./frontend:/app
+        networks:
+            - cusf_predictor_network
+        depends_on:
+            - backend
+            # - predictor_db
+        restart: ${RESTART_POLICY}
+    backend:
+        build:
+            context: ./backend
+            dockerfile: Dockerfile.dev
+        env_file: .env
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./backend/app:/app
+            - ./tawhiri-datasets:/srv/tawhiri-datasets/
+            - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
         # depends_on:
-        #     - medical_db
-        #        restart: always
-#   medical_db:
-#     build:
-#       context: ./db
-#       dockerfile: Dockerfile
-#     container_name: medical_db
-#     env_file: .env
-#     ports:
-#         - "${DB_PORT_HOST}:${DB_PORT}"
-#     volumes:
-#       - ./log/mysql/:/var/log/mysql
-#     environment:
-#         - MYSQL_DATABASE=${DB_NAME}
-#         - MYSQL_USER=${DB_USER}
-#         - MYSQL_PASSWORD=${DB_PASS}
-#         - MYSQL_ROOT_PASSWORD=${DB_ROOT_PW}
-#         - TZ=${TZ}
+        #     - predictor_db
+        networks:
+            - cusf_predictor_network
+        restart: ${RESTART_POLICY}
+    # predictor_db:
+    #     build:
+    #         context: ./
+    #         dockerfile: ./db/Dockerfile
+    #     container_name: predictor_db
+    #     env_file: .env
+    #     ports:
+    #         - "${DB_PORT}:${DB_PORT}"
+    #     volumes:
+    #         # - ./log/mysql/:/var/log/mysql
+    #         # - ./db/mysql_init/:/docker-entrypoint-initdb.d/
+    #         - app_db_data:/var/lib/mysql
+    #     environment:
+    #         - MYSQL_DATABASE=${DB_NAME}
+    #         - MYSQL_USER=${DB_USER}
+    #         - MYSQL_PASSWORD=${DB_PASSWORD}
+    #         - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    #         - TZ=${TZ}
+    #     networks:
+    #         - cusf_predictor_network
+    #     healthcheck:
+    #         test: mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD
+    #         interval: "2s"
+    #         timeout: "1s"
+    #         start_period: "100s"
+    #         retries: 5
+    #     restart: always
+    tawhiri_downloader:
+        build:
+            context: ./tawhiri_downloader
+            dockerfile: Dockerfile
+        container_name: tawhiri_downloader
+        env_file: .env
+        restart: ${RESTART_POLICY}
+        volumes:
+            - ./tawhiri-datasets:/srv/tawhiri-datasets/
+            - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
+        networks:
+          - cusf_predictor_network
+
+
+    # pgadmin:
+    #     container_name: pgadmin4_container
+    #     image: dpage/pgadmin4
+    #     env_file:
+    #         - .env
+    #     depends_on:
+    #         - db
+    #     environment:
+    #         PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    #         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+    #         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    #     ports:
+    #         - "${PGADMIN_LISTEN_PORT}:${PGADMIN_LISTEN_PORT}"
+    #     restart: always
+    # tawhiri_sel:
+    #     build:
+    #         context: ./tawhiri_sel
+    #         args:
+    #             - http_proxy=$http_proxy
+    #             - https_proxy=$https_proxy
+    #     env_file:
+    #         - .env
+    #     container_name: tawhiri_app
+    #     ports:
+    #         - "8081:8081"
+    #     volumes:
+    #         - /Users/cheesiang_leow/sel_program/tawhiri-datasets:/srv/tawhiri-datasets/
+    #         - /Users/cheesiang_leow/sel_program/ruaumoko-dataset:/srv/ruaumoko-dataset/
+    #     environment:
+    #         - TZ=Asia/Tokyo
+    #     networks:
+    #         - cusf_predictor_network
+
+networks:
+    cusf_predictor_network:
+        external: true
+
+volumes:
+    app_db_data:

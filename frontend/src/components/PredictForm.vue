@@ -14,11 +14,14 @@
                                 label="Launch Site"
                                 v-model="form_inputs.launchsite"
                                 :items="form_inputs.items"
+                                item-text="key"
+                                item-value="postition"
+                                @change="selectPosition($event)"
                             ></v-select>
                             </v-col>
                             <v-col cols=6>
                             <v-combobox
-                            v-model="form_inputs.selectDataset"
+                            v-model="form_inputs.dataset"
                             :items="datasets"
                             label="Select should use latest dataset"
                             ></v-combobox>
@@ -137,6 +140,13 @@
                                 Reset
                             </v-btn>
                             </v-col>
+                            <v-col cols=4>
+                            <v-btn 
+                                @click="runPrediction($event)"
+                                small outlined rounded text>
+                                Run Prediction
+                            </v-btn>
+                            </v-col>
                             
                             <v-spacer></v-spacer>
                 
@@ -165,7 +175,8 @@ export default {
     },
 
     methods: {
-        ...mapActions("predictors", ["clearPrediction","updateLat","updateLng"]),
+        ...mapActions("predictors", ["clearPrediction","updateLat","updateLng","runPrediction","selectPosition"]),
+        
     },
     computed: {
         ...mapState("predictors", ["prediction", "form_inputs","datasets"]),

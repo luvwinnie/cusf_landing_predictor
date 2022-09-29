@@ -5,7 +5,7 @@
             ref="map"
             :zoom="zoom"
             :center="center"
-            style="z-index:0;height:100%;"
+            style="z-index:0;height:90vh;display:flex;"
         >
             <LControlLayers position="topleft"></LControlLayers>
             <LControl :position="'topright'" class="custom-control-watermark">
@@ -86,6 +86,7 @@
                 :latLng="markerPos"
                 :draggable="this.draggable"
                 @update:latLng="updateMarkerPos"
+                :icon="ballon_icon"
             ></LMarker>
 
             <HourlyPrediction
@@ -112,6 +113,7 @@ import AboutDialog from "@/components/AboutDialog.vue";
 import moment from "moment-timezone/moment-timezone";
 import { mapActions, mapState, mapGetters } from "vuex";
 import Vue2LeafletGoogleMutant from "vue2-leaflet-googlemutant";
+import { icon } from "leaflet";
 
 export default {
     name: "HourlyPredictor",
@@ -130,6 +132,12 @@ export default {
     data() {
         return {
             // isLoading: false,
+            ballon_icon: icon({
+                iconUrl: require("@/assets/target-1-sm.png"),
+                iconSize: [16, 16],
+                iconAnchor: [8, 8],
+                
+            }),
             url: "https://{s}.tile.osm.org/{z}/{x}/{y}.png",
             zoom: 5,
             center: [37.4263, 138.8195],

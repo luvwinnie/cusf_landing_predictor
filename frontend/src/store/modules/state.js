@@ -5,10 +5,10 @@ export const state = {
     landing_line: [],
     showPaths: [],
     used_model: "",
-    datasets:["latest","timestamp"],
+    datasets: ["latest", "timestamp"],
     form_inputs: {
         items: ["Kofu", "Chuchill"],
-        selectDataset:"latest",
+        selectDataset: "latest",
         months: [
             { key: "Jan", value: 1 },
             { key: "Feb", value: 2 },
