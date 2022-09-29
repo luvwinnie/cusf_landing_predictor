@@ -81,7 +81,8 @@ const actions = {
 
     async runPrediction({ state, commit }, e) {
         this.dispatch("setLoading", true, { root: true });
-        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${state.form_inputs.selectDay}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
+        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
+        console.log(dateStr);
         var currentDate = new Date(dateStr + 'Z');
         console.log("japan time:", currentDate);
         var getTime = moment(
@@ -147,7 +148,7 @@ const actions = {
         this.dispatch("setLoading", true, { root: true });
 
 
-        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${state.form_inputs.selectDay}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
+        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
         var currentDate = new Date(dateStr + 'Z');
         console.log("japan time:", currentDate);
         var getTime = moment(

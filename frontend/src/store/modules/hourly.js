@@ -71,7 +71,7 @@ const actions = {
         //     "Asia/Tokyo"
         // );
 
-        var dateStr = `${rootState.predictors.form_inputs.selectYear}-${zeroPad(rootState.predictors.form_inputs.selectMonth, 2)}-${rootState.predictors.form_inputs.selectDay}T${zeroPad(rootState.predictors.form_inputs.selectHours - 9, 2)}:${rootState.predictors.form_inputs.selectMinutes}:00`;
+        var dateStr = `${rootState.predictors.form_inputs.selectYear}-${zeroPad(rootState.predictors.form_inputs.selectMonth, 2)}-${zeroPad(rootState.predictors.form_inputs.selectDay, 2)}T${zeroPad(rootState.predictors.form_inputs.selectHours - 9, 2)}:${rootState.predictors.form_inputs.selectMinutes}:00`;
         var currentDate = new Date(dateStr + 'Z');
         console.log("japan time:", currentDate);
         var getTime = moment(
