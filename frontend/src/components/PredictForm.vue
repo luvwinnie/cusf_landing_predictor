@@ -45,6 +45,7 @@
                 <v-text-field
                   v-model="form_inputs.launchAttitude"
                   label="LaunchAltitude (m)"
+                  hint="At sea level"
                   required
                 ></v-text-field>
               </v-col>
@@ -114,7 +115,6 @@
               <v-col cols="3">
                 <v-text-field
                   v-model="form_inputs.descentRate"
-                  hint="At sea level"
                   label="Descent Rate (m/s)"
                   required
                 ></v-text-field>

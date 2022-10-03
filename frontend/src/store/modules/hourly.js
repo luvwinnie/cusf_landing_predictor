@@ -70,9 +70,16 @@ const actions = {
         //     `${state.form_inputs.selectYear}-${state.form_inputs.selectMonth}-${state.form_inputs.selectDay} ${state.form_inputs.selectHours}:${state.form_inputs.selectMinutes}`,
         //     "Asia/Tokyo"
         // );
-
-        var dateStr = `${rootState.predictors.form_inputs.selectYear}-${zeroPad(rootState.predictors.form_inputs.selectMonth, 2)}-${zeroPad(rootState.predictors.form_inputs.selectDay, 2)}T${zeroPad(rootState.predictors.form_inputs.selectHours - 9, 2)}:${rootState.predictors.form_inputs.selectMinutes}:00`;
+        // if (rootState.predictors.form_inputs.selectHours < 9) {
+        //     var hour = 7 - rootState.predictors.form_inputs.selectHours;
+        // }
+        // else {
+        var hour = rootState.predictors.form_inputs.selectHours;
+        // }
+        var dateStr = `${rootState.predictors.form_inputs.selectYear}-${zeroPad(rootState.predictors.form_inputs.selectMonth, 2)}-${zeroPad(rootState.predictors.form_inputs.selectDay, 2)}T${zeroPad(hour, 2)}:${zeroPad(rootState.predictors.form_inputs.selectMinutes, 2)}:00`;
+        console.log("dateStr:", dateStr);
         var currentDate = new Date(dateStr + 'Z');
+        currentDate.setHours(currentDate.getHours() - 9);
         console.log("japan time:", currentDate);
         var getTime = moment(
             currentDate

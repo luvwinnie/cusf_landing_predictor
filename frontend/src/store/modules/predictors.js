@@ -14,6 +14,7 @@ const state = {
     used_model: null,
     datasets: ["latest", "timestamp"],
     center: [37.850000, 141.057023],
+
     form_inputs: {
         items: [
             { key: "Point A", postition: { lat: 37.850000, lng: 141.057023 } },
@@ -73,17 +74,19 @@ const actions = {
             getDistanceFromLatLonInKm()
         }
     },
-    async selectPosition({ state, commit }, e) {
+    async selectPosition({ state, commit, rootState }, e) {
         state.form_inputs.lat = e.lat;
         state.form_inputs.lng = e.lng;
         state.center = [e.lat, e.lng];
+        rootState.hourly.markerPos = [e.lat, e.lng];
     },
 
     async runPrediction({ state, commit }, e) {
         this.dispatch("setLoading", true, { root: true });
-        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
+        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours, 2)}:${zeroPad(state.form_inputs.selectMinutes, 2)}:00`;
         console.log(dateStr);
         var currentDate = new Date(dateStr + 'Z');
+        currentDate.setHours(currentDate.getHours() - 9);
         console.log("japan time:", currentDate);
         var getTime = moment(
             currentDate,// +09:00 to make the time as Asia/Tokyo time
@@ -133,6 +136,7 @@ const actions = {
                 landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                 used_model: response.data.used_model
+
             };
             // this.isLoading = false;
             console.log(this.$store);
@@ -141,6 +145,43 @@ const actions = {
         });
 
     },
+    async downloadPrediction({ state, commit }, format) {
+        // this.dispatch("setLoading", true, { root: true });
+        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours, 2)}:${zeroPad(state.form_inputs.selectMinutes, 2)}:00`;
+        console.log(dateStr);
+        var currentDate = new Date(dateStr + 'Z');
+        currentDate.setHours(currentDate.getHours() - 9);
+        console.log("japan time:", currentDate);
+        var getTime = moment(
+            currentDate,// +09:00 to make the time as Asia/Tokyo time
+        );
+
+        var launch_time = getTime.utc();
+        var params = {
+            profile: "standard_profile",
+            launch_datetime: launch_time.format(),
+            launch_latitude: state.form_inputs.lat.toFixed(4),
+            launch_longitude: state.form_inputs.lng.toFixed(4),
+            launch_altitude: state.form_inputs.launchAttitude,
+            ascent_rate: state.form_inputs.ascentRate,
+            burst_altitude: state.form_inputs.burstAttitude,
+            descent_rate: state.form_inputs.descentRate,
+            dataset: state.form_inputs.dataset,
+            data_format: format
+        };
+        await axios.get(state.api, { params: params }).then((response) => {
+            console.log(response);
+            let blob = new Blob([response.data], { type: response.headers['content-type'] });
+            let url = window.URL.createObjectURL(blob);
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = response.headers["content-disposition"].split("=")[1];
+            link.click();
+        });
+
+    },
+
+
     async clickPos({ state, commit }, e) {
         state.lat = e.latlng["lat"];
         state.lng = e.latlng["lng"];
@@ -148,8 +189,10 @@ const actions = {
         this.dispatch("setLoading", true, { root: true });
 
 
-        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours - 9, 2)}:${state.form_inputs.selectMinutes}:00`;
+        var dateStr = `${state.form_inputs.selectYear}-${zeroPad(state.form_inputs.selectMonth, 2)}-${zeroPad(state.form_inputs.selectDay, 2)}T${zeroPad(state.form_inputs.selectHours, 2)}:${zeroPad(state.form_inputs.selectMinutes, 2)}:00`;
+        console.log("dateStr:", dateStr);
         var currentDate = new Date(dateStr + 'Z');
+        currentDate.setHours(currentDate.getHours() - 9);
         console.log("japan time:", currentDate);
         var getTime = moment(
             currentDate,// +09:00 to make the time as Asia/Tokyo time

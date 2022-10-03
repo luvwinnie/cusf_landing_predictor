@@ -8,7 +8,6 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         isLoading: false,
-        // mousePos: { lat: 0, lng: 0 },
     },
     getters: {
         isLoading: (state) => state.isLoading,

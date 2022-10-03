@@ -10,3 +10,4 @@ mysql-connector-python
 sqlalchemy
 mysqlclient
 sqlalchemy-utils
+python-dateutil

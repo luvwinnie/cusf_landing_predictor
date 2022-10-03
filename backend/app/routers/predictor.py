@@ -1,7 +1,7 @@
 import datetime
 import os
 from datetime import timedelta
-from typing import Optional
+from typing import Optional,Union
 
 from common.custom_exception import (InternalException, PredictionException,
                                      RequestException)
@@ -16,6 +16,11 @@ from fastapi.encoders import generate_encoders_by_class_tuples
 from predictors import interpolate, models, solver
 from predictors.dataset import Dataset as WindDataset
 from predictors.warnings import WarningCounts
+from predictors.csvformatter import format_csv, fix_data_longitudes
+from predictors.kmlformatter import format_kml
+from fastapi.responses import FileResponse,StreamingResponse
+from io import BytesIO
+
 
 router = APIRouter(
     prefix=f"{settings.api_v1_str}/predictor",
@@ -220,7 +225,8 @@ def get_dataset():
 def get_predict(profile: str, launch_datetime: str,
              launch_latitude: float, launch_longitude: float,
              launch_altitude: int, burst_altitude: int,
-             ascent_rate: float, descent_rate: float
+             ascent_rate: float, descent_rate: float,
+             data_format: Union[str,None]=None
              ):
     
     data = {
@@ -238,7 +244,28 @@ def get_predict(profile: str, launch_datetime: str,
     # parse_request(data)
     # print(launch_datetime.strptime(iso_str, '%Y-%m-%dT%H:%M:%S.%fZ'))
     # print(_rfc3339_to_timestamp(launch_datetime))
-    return run_prediction(parse_request(data))
+    if data_format is None:
+        return run_prediction(parse_request(data))
+    elif data_format == "CSV":
+        response = run_prediction(parse_request(data))
+        _formatted = format_csv(fix_data_longitudes(response))
+        filename = _formatted['filename']
+        response = StreamingResponse(iter([_formatted['data']]),
+                            media_type="text/csv"
+        )
+    
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+        return response
+    elif data_format == "KML":
+        response = run_prediction(parse_request(data))
+        _formatted = format_kml(fix_data_longitudes(response))
+        filename = _formatted['filename']
+        response = StreamingResponse(iter([_formatted['data']]),
+        )
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+
+        # StreamingResponse(BytesIO(_formatted['data'].encode()), media_type="text/csv")
+        return response
 
 
 @router.get('/predict_hourly')
