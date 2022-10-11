@@ -221,7 +221,7 @@ def _extract_parameter(data, parameter, cast, default=None, ignore=False,
 
 @router.get("/dataset-list")
 def get_dataset():
-    return {"dataset":[dataset_name for dataset_name in sorted(os.listdir(WindDataset.DEFAULT_DIRECTORY)) if "download" not in dataset_name]}
+    return {"dataset":[dataset_name for dataset_name in sorted(os.listdir(WindDataset.DEFAULT_DIRECTORY),reverse=True) if "download" not in dataset_name]}
 
 @router.get('/predict')
 def get_predict(profile: str, launch_datetime: str,

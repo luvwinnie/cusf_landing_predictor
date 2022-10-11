@@ -23,9 +23,15 @@
       </v-dialog>
       <v-card max-width="344" outlined>
         <v-list-item three-line>
-          <v-list-item-content>
+          <v-list-item-content style="font-size: 1rem">
             <div class="mb-4">
-              <h4>Scenario Information</h4>
+              <h4>
+                Scenario Information<br /><a
+                  href="https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/"
+                  >NOAA Dataset</a
+                ><br />
+                <span>Latest Model: {{ latest_dataset }}</span>
+              </h4>
               Mouse position: Lat:{{ mousePos["lat"] }} Lon:{{
                 mousePos["lng"]
               }}
@@ -44,7 +50,12 @@
                   }}hours
                 </span>
                 <br />
-                <span> Using model: {{ selectedPrediction.used_model }} </span>
+                <!-- <span> Using model: {{ selectedPrediction.used_model }} </span> -->
+                <span v-if="prediction !== null"
+                  >Using model: {{ selectedPrediction.used_model }}<br />(JST:{{
+                    selectedPrediction.used_model_jst
+                  }})</span
+                >
               </p>
             </div>
             <v-row align="center" justify="space-around">
@@ -223,7 +234,12 @@ export default {
     ...mapActions("hourly", ["updateMarkerPos", "clickUpdateMarkerPos"]),
   },
   computed: {
-    ...mapState("predictors", ["mousePos", "form_inputs", "center"]),
+    ...mapState("predictors", [
+      "mousePos",
+      "form_inputs",
+      "center",
+      "latest_dataset",
+    ]),
     ...mapState("hourly", [
       "api",
       "prediction",

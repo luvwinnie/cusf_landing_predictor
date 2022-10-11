@@ -1,5 +1,6 @@
 import { convertDMS, getDistanceFromLatLonInKm, parsePrediction } from "@/common/utils";
 import axios from "axios";
+import moment from "moment-timezone/moment-timezone";
 import Vue from "vue";
 import VueRouter from "vue-router";
 import store from "../store";
@@ -46,15 +47,25 @@ const router = new VueRouter({
     routes,
 });
 router.beforeEach((to, from, next) => {
-    console.log(to, from, next);
+    axios.get(process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/dataset-list").then((response) => {
+        // console.log("response:", response.data.dataset[0]);
+        let latest_model = response.data.dataset[0];
+        let usedModelDate = new Date(`${latest_model.substring(0, 4)}-${latest_model.substring(4, 6)}-${latest_model.substring(6, 8)}T${latest_model.substring(8, 10)}:00:00Z`);
+        let usedModelJST = moment(usedModelDate).format("yyyy/MM/DD HH:00");
+
+        store.commit("predictors/updateLatestModel", `${response.data.dataset[0]} (JST:${usedModelJST})`);
+    })
     if (to.path == '/predictor') {
         if (to.query) {
             // console.log(process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict?" + to.fullPath.replace("/predictor?", ""));
             store.commit("predictors/setStates", to.query);
-
             axios.get(process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict?" + to.fullPath.replace("/predictor?", "")).then((response) => {
                 //     console.log(response.data);
                 var result = parsePrediction(response.data.prediction);
+                var used_model = response.data.used_model;
+                let usedModelDate = new Date(`${used_model.substring(0, 4)}-${used_model.substring(4, 6)}-${used_model.substring(6, 8)}T${used_model.substring(8, 10)}:00:00Z`);
+                // currentDate.setHours(currentDate.getHours() - 9);
+                let usedModelJST = moment(usedModelDate).format("yyyy/MM/DD HH:00");
                 // var used_model = "";
                 var prediction = {
                     launch_latlng: {
@@ -75,7 +86,9 @@ router.beforeEach((to, from, next) => {
                     landing_location: convertDMS(result.landing.latlng.lat, result.landing.latlng.lng),
                     landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                     range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
-                    used_model: response.data.used_model
+                    // used_model: response.data.used_model,
+                    used_model: used_model,
+                    used_model_jst: usedModelJST
                 };
                 // this.isLoading = false;
                 store.commit("predictors/updatePrediction", prediction);

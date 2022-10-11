@@ -7,7 +7,7 @@ var currentDateJst = moment(currentDate).tz(timezone);
 
 const state = {
     api: process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict_hourly",
-    markerPos: [37.4263, 138.8195],
+    markerPos: [37.850000, 141.057023],
     prediction: [],
     landing_line: [],
     showPaths: [],
@@ -121,6 +121,9 @@ const actions = {
                 var result = parsePrediction(element.prediction);
                 console.log("element.prediction:", element)
                 used_model = element.used_model;
+                let usedModelDate = new Date(`${used_model.substring(0, 4)}-${used_model.substring(4, 6)}-${used_model.substring(6, 8)}T${used_model.substring(8, 10)}:00:00Z`);
+                // currentDate.setHours(currentDate.getHours() - 9);
+                let usedModelJST = moment(usedModelDate).format("yyyy/MM/DD HH:00");
                 var prediction = {
                     launch_latlng: {
                         lat: result.launch.latlng.lat.toFixed(4),
@@ -142,7 +145,8 @@ const actions = {
                     landing_location: convertDMS(result.landing.latlng.lat, result.landing.latlng.lng),
                     landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                     range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
-                    used_model: used_model
+                    used_model: used_model,
+                    used_model_jst: usedModelJST,
                 };
                 console.log(prediction);
                 prediction_arr.push(prediction);

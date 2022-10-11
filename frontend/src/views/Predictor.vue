@@ -23,9 +23,15 @@
       </v-dialog>
       <v-card max-width="344" outlined>
         <v-list-item three-line>
-          <v-list-item-content>
+          <v-list-item-content style="font-size: 1rem">
             <div class="mb-4">
-              <h4>Scenario Information</h4>
+              <h4>
+                Scenario Information<br /><a
+                  href="https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/"
+                  >NOAA Dataset</a
+                ><br />
+                <span>Latest Model: {{ latest_dataset }}</span>
+              </h4>
               Mouse position: Lat:{{ mousePos["lat"] }} Lon:{{
                 mousePos["lng"]
               }}
@@ -39,19 +45,13 @@
                 <span> Landing(DD):{{ prediction.landing_location_dd }} </span>
               </p>
               <span v-if="prediction !== null"
-                >Using model: {{ prediction.used_model }}</span
+                >Using model: {{ prediction.used_model }}<br />(JST:{{
+                  prediction.used_model_jst
+                }})</span
               >
+
               <v-row v-if="prediction !== null">
                 <v-col>
-                  <!-- <v-btn
-                    @click="downloadPrediction('CSV')"
-                    small
-                    outlined
-                    rounded
-                    text
-                  >
-                    CSV
-                  </v-btn> -->
                   <a @click="downloadPrediction('CSV')">CSV</a>
                   |
                   <a @click="downloadPrediction('KML')">KML</a>
@@ -220,6 +220,7 @@ export default {
       "prediction",
       "form_inputs",
       "center",
+      "latest_dataset",
     ]),
     ...mapGetters(["isLoading"]),
   },

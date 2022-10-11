@@ -9,6 +9,7 @@ var currentDateJst = moment(currentDate).tz(timezone);
 
 const state = {
     api: process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict",
+    latest_dataset: "",
     mousePos: { lat: 0, lng: 0 },
     prediction: null,
     distance: null,
@@ -63,6 +64,7 @@ const state = {
 // };
 
 const actions = {
+
 
     async updateMousePos({ commit }, e) {
         var mousePos = {
@@ -228,6 +230,11 @@ const actions = {
         await axios.get(state.api, { params: params }).then((response) => {
             console.log(response.data);
             var result = parsePrediction(response.data.prediction);
+            var used_model = response.data.used_model;
+            console.log
+            let usedModelDate = new Date(`${used_model.substring(0, 4)}-${used_model.substring(4, 6)}-${used_model.substring(6, 8)}T${used_model.substring(8, 10)}:00:00Z`);
+            // currentDate.setHours(currentDate.getHours() - 9);
+            let usedModelJST = moment(usedModelDate).format("yyyy/MM/DD HH:00");
             console.log(result);
             // var used_model = "";
             var prediction = {
@@ -249,7 +256,9 @@ const actions = {
                 landing_location: convertDMS(result.landing.latlng.lat, result.landing.latlng.lng),
                 landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
-                used_model: response.data.used_model
+                used_model: used_model,
+                used_model_jst: usedModelJST,
+
             };
             // this.isLoading = false;
             console.log(this.$store);
@@ -284,6 +293,7 @@ const mutations = {
     updateMousePos: (state, mousePos) => (state.mousePos = mousePos),
     updatePrediction: (state, prediction) => (state.prediction = prediction),
     updateUsedModel: (state, used_model) => (state.used_model = used_model),
+    updateLatestModel: (state, latest_dataset) => (state.latest_dataset = latest_dataset),
     setStates: (state, obj) => {
         console.log(obj);
         console.log(state);

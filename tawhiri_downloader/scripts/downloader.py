@@ -9,6 +9,14 @@ from botocore.exceptions import ClientError
 import os
 import schedule
 
+def convert_to_dateobject(date_str):
+    year = date_str[:4]
+    month = date_str[4:6]
+    date = date_str[6:8]
+    hour = date_str[8:]
+    return datetime.datetime.strptime(f"{year}-{month}-{date} {hour}:00:00.00",'%Y-%m-%d %H:%M:%S.%f')
+
+
 def download_dataset():
     s3 = boto3.client('s3', config=Config(signature_version=UNSIGNED))
 
@@ -48,6 +56,7 @@ def download_dataset():
     # return 
 
 
-schedule.every(1).hours.do(download_dataset)
+schedule.every(5).minutes.do(download_dataset)
 while True:
     schedule.run_pending()
+
