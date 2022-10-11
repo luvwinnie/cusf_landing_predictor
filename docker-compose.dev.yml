@@ -82,12 +82,26 @@ services:
     #         start_period: "100s"
     #         retries: 5
     #     restart: always
+    # tawhiri_downloader:
+    #     image: ghcr.io/projecthorus/tawhiri-downloader-container:latest
+    #     container_name: tawhiri_downloader
+    #     entrypoint: "/root/tawhiri-downloader/default/main.exe daemon"
+    #     environment:
+    #         - TZ=UTC
+    #     restart: ${RESTART_POLICY}
+    #     volumes:
+    #         - ./tawhiri-datasets:/srv/tawhiri-datasets/
+    #         - ./ruaumoko-dataset:/srv/ruaumoko-dataset/
+    #     networks:
+    #       - cusf_predictor_network
     tawhiri_downloader:
         build:
             context: ./tawhiri_downloader
             dockerfile: Dockerfile
         container_name: tawhiri_downloader
-        env_file: .env
+        # env_file: .env
+        environment:
+            - TZ=UTC
         restart: ${RESTART_POLICY}
         volumes:
             - ./tawhiri-datasets:/srv/tawhiri-datasets/

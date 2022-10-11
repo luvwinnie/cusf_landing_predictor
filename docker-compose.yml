@@ -94,7 +94,8 @@ services:
             context: ./tawhiri_downloader
             dockerfile: Dockerfile
         container_name: tawhiri_downloader
-        env_file: .env
+        environment:
+            - TZ=UTC
         restart: ${RESTART_POLICY}
         volumes:
             - ./tawhiri-datasets:/srv/tawhiri-datasets/

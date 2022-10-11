@@ -141,3 +141,28 @@ export const requestApi = (url, callback) => {
             console.log(e)
         });
 }
+
+export const parseQueryParams = (obj) => {
+    console.log(obj);
+    console.log("parse");
+    var curTime = moment.utc(obj.launch_datetime).tz("Asia/Tokyo").local();
+    console.log(curTime);
+    return {
+        selectDay: curTime.format("DD"),
+        selectMonth: parseInt(curTime.format("MM")),
+        selectYear: curTime.format("YYYY"),
+        selectHours: curTime.format("HH"),
+        selectMinutes: curTime.format("mm"),
+        launchAttitude: parseInt(obj.launch_altitude),
+        burstAttitude: parseInt(obj.burst_altitude),
+        ascentRate: parseFloat(obj.ascent_rate),
+        descentRate: parseFloat(obj.descent_rate),
+        Profile: obj.profile,
+        lng: parseFloat(obj.launch_longitude),
+        lat: parseFloat(obj.launch_latitude),
+
+
+
+    }
+    // return d;
+}

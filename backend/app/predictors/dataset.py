@@ -115,6 +115,7 @@ class Dataset(object):
 
     #: The default location of wind data
     DEFAULT_DIRECTORY = '/srv/tawhiri-datasets'
+    DEFAULT_HISTORY_DIRECTORY = '/srv/tawhiri-datasets_history'
 
     @classmethod
     def filename(cls, ds_time, directory=DEFAULT_DIRECTORY, suffix=''):

@@ -43,15 +43,17 @@ def run_prediction(req):
     print("req:", req)
 
     # Find wind data location
-    ds_dir = os.getenv('WIND_DATASET_DIR', WindDataset.DEFAULT_DIRECTORY)
+    
 
     # print(req)
     # Dataset
     try:
         if req['dataset'] == LATEST_DATASET_KEYWORD:
+            ds_dir = os.getenv('WIND_DATASET_DIR', WindDataset.DEFAULT_DIRECTORY)
             tawhiri_ds = WindDataset.open_latest(persistent=True, directory=ds_dir)
             print("Latest tawhiri_ds:",tawhiri_ds,tawhiri_ds.ds_time.strftime("%Y-%m-%dT%H:00:00Z"))
         else:
+            ds_dir = os.getenv('WIND_DATASET_DIR', WindDataset.DEFAULT_HISTORY_DIRECTORY)
             print("WindDataset",datetime.fromtimestamp(req['dataset']))
             tawhiri_ds = WindDataset(datetime.fromtimestamp(req['dataset']), directory=ds_dir)
     except IOError:

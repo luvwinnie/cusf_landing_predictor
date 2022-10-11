@@ -1,4 +1,5 @@
-import { convertDMS, getDistanceFromLatLonInKm, parsePrediction, zeroPad } from "@/common/utils";
+import { convertDMS, getDistanceFromLatLonInKm, parsePrediction, parseQueryParams, zeroPad } from "@/common/utils";
+import router from '@/router';
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
 // import state from "./form_states";
@@ -23,6 +24,8 @@ const state = {
             { key: "Point D", postition: { lat: 37.687305, lng: 139.430333 } },
             { key: "Point E", postition: { lat: 37.307931, lng: 139.641069 } },
             { key: "Point F", postition: { lat: 37.095971, lng: 138.258866 } },
+            { key: "Point G", postition: { lat: 36.357852, lng: 139.380919 } },
+            { key: "Point H", postition: { lat: 36.195191, lng: 138.437223 } },
         ],
         dataset: "latest",
         months: [
@@ -60,6 +63,7 @@ const state = {
 // };
 
 const actions = {
+
     async updateMousePos({ commit }, e) {
         var mousePos = {
             lat: e.latlng["lat"].toFixed(4),
@@ -92,6 +96,7 @@ const actions = {
             currentDate,// +09:00 to make the time as Asia/Tokyo time
         );
 
+
         var launch_time = getTime.utc();
 
         // if (state.lng < 0.0) {
@@ -110,6 +115,8 @@ const actions = {
             descent_rate: state.form_inputs.descentRate,
             dataset: state.form_inputs.dataset,
         };
+        router.push({ path: 'predictor', query: params });
+
         console.log("params:", params);
         await axios.get(state.api, { params: params }).then((response) => {
             console.log(response.data);
@@ -216,6 +223,7 @@ const actions = {
             descent_rate: state.form_inputs.descentRate,
             dataset: state.form_inputs.dataset,
         };
+        router.push({ path: 'predictor', query: params });
         console.log("params:", params);
         await axios.get(state.api, { params: params }).then((response) => {
             console.log(response.data);
@@ -250,6 +258,7 @@ const actions = {
         });
     },
     async clearPrediction({ commit }) {
+        // router.push({ path: 'predictor', })
         commit("updatePrediction", null);
     },
     async updateLat({ state, rootState }, e) {
@@ -274,7 +283,32 @@ const actions = {
 const mutations = {
     updateMousePos: (state, mousePos) => (state.mousePos = mousePos),
     updatePrediction: (state, prediction) => (state.prediction = prediction),
-    updateUsedModel: (state, used_model) => (state.used_model = used_model)
+    updateUsedModel: (state, used_model) => (state.used_model = used_model),
+    setStates: (state, obj) => {
+        console.log(obj);
+        console.log(state);
+        var newparams = parseQueryParams(obj);
+
+        // var currentDate = new Date(dateStr + 'Z');
+        // var curTime = moment.utc(obj.launch_datetime).tz(timezone);
+        // console.log(curTime);
+
+        state.form_inputs.selectDay = newparams.selectDay;
+        state.form_inputs.selectMonth = newparams.selectMonth;
+        state.form_inputs.selectYear = newparams.selectYear;
+        state.form_inputs.selectHours = newparams.selectHours;
+        state.form_inputs.selectMinutes = newparams.selectMinutes;
+        state.form_inputs.lat = newparams.lat;
+        state.form_inputs.lng = newparams.lng;
+        state.form_inputs.launchAttitude = newparams.launchAttitude;
+        state.form_inputs.burstAttitude = newparams.burstAttitude;
+        state.form_inputs.ascentRate = newparams.ascentRate;
+        state.form_inputs.descentRate = newparams.descentRate;
+        state.center = [newparams.lat, newparams.lng];
+        // this.dispatch('predictors/runPrediction');
+        // runPrediction();
+        // this.dispatch("runPrediction", { state });
+    }
 };
 export default {
     namespaced: true,
