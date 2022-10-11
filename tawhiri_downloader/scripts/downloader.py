@@ -6,8 +6,14 @@ import datetime
 from botocore.exceptions import ClientError
 # Script to find which dataset is the latest avaliable on S3
 
+import logging
 import os
 import schedule
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 
 def convert_to_dateobject(date_str):
     year = date_str[:4]
@@ -44,14 +50,14 @@ def download_dataset():
         raise RuntimeError("Could not find latest GFS data")
 
     command_time_string = candidate_time.strftime("%Y%m%d%H")
-    print(f"Found latest to be {command_time_string}.")
+    logging.info(f"Found latest to be {command_time_string}.")
     if not os.path.exists(f"/srv/tawhiri-datasets/{command_time_string}"):
-        print(f"Start download {command_time_string}")
+        logging.info(f"Start download {command_time_string}")
         # the assumption is that this script will only ever run inside docker
         os.system(f"/tawhiri-downloader/_build/default/main.exe one -base-url aws-mirror {command_time_string}")
-        print(f"Done download {command_time_string}")
+        logging.info(f"Done download {command_time_string}")
     else:
-        print(f"Dataset {command_time_string} Existed ")
+        logging.info(f"Dataset {command_time_string} Existed ")
 
     # return 
 
