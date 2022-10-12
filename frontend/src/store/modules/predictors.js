@@ -144,7 +144,8 @@ const actions = {
                 landing_location: convertDMS(result.landing.latlng.lat, result.landing.latlng.lng),
                 landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
-                used_model: response.data.used_model
+                used_model: response.data.used_model,
+                google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
 
             };
             // this.isLoading = false;
@@ -258,6 +259,7 @@ const actions = {
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                 used_model: used_model,
                 used_model_jst: usedModelJST,
+                google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
 
             };
             // this.isLoading = false;

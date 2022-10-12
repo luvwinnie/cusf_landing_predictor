@@ -88,7 +88,8 @@ router.beforeEach((to, from, next) => {
                     range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                     // used_model: response.data.used_model,
                     used_model: used_model,
-                    used_model_jst: usedModelJST
+                    used_model_jst: usedModelJST,
+                    google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
                 };
                 // this.isLoading = false;
                 store.commit("predictors/updatePrediction", prediction);

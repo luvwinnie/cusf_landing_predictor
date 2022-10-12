@@ -147,6 +147,7 @@ const actions = {
                     range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                     used_model: used_model,
                     used_model_jst: usedModelJST,
+                    google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
                 };
                 console.log(prediction);
                 prediction_arr.push(prediction);

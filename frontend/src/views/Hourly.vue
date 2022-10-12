@@ -31,6 +31,11 @@
                   >NOAA Dataset</a
                 ><br />
                 <span>Latest Model: {{ latest_dataset }}</span>
+                <span v-if="selectedPrediction !== null"
+                  >Using model: {{ selectedPrediction.used_model }}<br />(JST:{{
+                    selectedPrediction.used_model_jst
+                  }})</span
+                >
               </h4>
               Mouse position: Lat:{{ mousePos["lat"] }} Lon:{{
                 mousePos["lng"]
@@ -41,7 +46,12 @@
                 </span>
                 <br />
                 <span>
-                  Landing(DD):{{ selectedPrediction.landing_location_dd }}
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :href="selectedPrediction.google_link"
+                    >Landing(DD):{{ selectedPrediction.landing_location_dd }}</a
+                  >
                 </span>
                 <br />
                 <span>
@@ -51,11 +61,6 @@
                 </span>
                 <br />
                 <!-- <span> Using model: {{ selectedPrediction.used_model }} </span> -->
-                <span v-if="prediction !== null"
-                  >Using model: {{ selectedPrediction.used_model }}<br />(JST:{{
-                    selectedPrediction.used_model_jst
-                  }})</span
-                >
               </p>
             </div>
             <v-row align="center" justify="space-around">

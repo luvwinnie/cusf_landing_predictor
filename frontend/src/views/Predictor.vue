@@ -31,6 +31,12 @@
                   >NOAA Dataset</a
                 ><br />
                 <span>Latest Model: {{ latest_dataset }}</span>
+                <br />
+                <span v-if="prediction !== null"
+                  >Using model: {{ prediction.used_model }}<br />(JST:{{
+                    prediction.used_model_jst
+                  }})</span
+                >
               </h4>
               Mouse position: Lat:{{ mousePos["lat"] }} Lon:{{
                 mousePos["lng"]
@@ -42,13 +48,15 @@
                 <br />
                 <span> Landing(DMS):{{ prediction.landing_location }} </span>
                 <br />
-                <span> Landing(DD):{{ prediction.landing_location_dd }} </span>
+                <span>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :href="prediction.google_link"
+                    >Landing(DD):{{ prediction.landing_location_dd }}</a
+                  >
+                </span>
               </p>
-              <span v-if="prediction !== null"
-                >Using model: {{ prediction.used_model }}<br />(JST:{{
-                  prediction.used_model_jst
-                }})</span
-              >
 
               <v-row v-if="prediction !== null">
                 <v-col>
