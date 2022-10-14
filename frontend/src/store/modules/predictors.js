@@ -306,7 +306,6 @@ const actions = {
 const mutations = {
     updateMousePos: (state, mousePos) => (state.mousePos = mousePos),
     updateCursorDistance: (state, obj) => {
-        console.log("updateCursorDistance:", obj.launch_dis);
         state.launch_distance = obj.launch_dis;
         state.landing_distance = obj.landing_dis;
     },

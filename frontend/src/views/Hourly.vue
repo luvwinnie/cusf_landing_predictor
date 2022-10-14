@@ -60,6 +60,10 @@
                   }}hours
                 </span>
                 <br />
+                Cursor range from launch: <span>{{ launch_distance }}</span
+                >km, land: <span>{{ landing_distance }}</span
+                >km
+                <br />
                 <!-- <span> Using model: {{ selectedPrediction.used_model }} </span> -->
               </p>
             </div>
@@ -74,7 +78,7 @@
       </v-card>
     </LControl>
     <HourlyPredictForm />
-    <HourlyShowPathCard />
+    <!-- <HourlyShowPathCard /> -->
     <LTileLayer
       v-for="tileProvider in tileProviders"
       :key="tileProvider.name"
@@ -235,23 +239,31 @@ export default {
     };
   },
   methods: {
-    ...mapActions("predictors", ["updateMousePos"]),
-    ...mapActions("hourly", ["updateMarkerPos", "clickUpdateMarkerPos"]),
+    // ...mapActions("predictors", ["updateMousePos"]),
+
+    ...mapActions("hourly", [
+      "updateMousePos",
+      "updateMarkerPos",
+      "clickUpdateMarkerPos",
+    ]),
   },
   computed: {
     ...mapState("predictors", [
-      "mousePos",
+      // "mousePos",
       "form_inputs",
       "center",
       "latest_dataset",
     ]),
     ...mapState("hourly", [
+      "mousePos",
       "api",
       "prediction",
       "landing_line",
       "markerPos",
       "showPaths",
       "selectedPrediction",
+      "launch_distance",
+      "landing_distance",
     ]),
     ...mapGetters(["isLoading"]),
   },

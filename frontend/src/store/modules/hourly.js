@@ -1,4 +1,4 @@
-import { convertDMS, getDistanceFromLatLonInKm, parsePrediction, zeroPad } from "@/common/utils";
+import { convertDMS, distHaversine, getDistanceFromLatLonInKm, parsePrediction, zeroPad } from "@/common/utils";
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
 var currentDate = new Date();
@@ -7,7 +7,10 @@ var currentDateJst = moment(currentDate).tz(timezone);
 
 const state = {
     api: process.env.VUE_APP_TAWHIRI_API_URL + "/predictor/predict_hourly",
+    mousePos: { lat: 0, lng: 0 },
     markerPos: [37.850000, 141.057023],
+    landing_distance: null,
+    launch_distance: null,
     prediction: [],
     landing_line: [],
     showPaths: [],
@@ -17,6 +20,28 @@ const state = {
 };
 
 const actions = {
+    async updateMousePos({ commit }, e) {
+        var mousePos = {
+            lat: e.latlng["lat"].toFixed(4),
+            lng: e.latlng["lng"],
+        };
+        if (mousePos["lng"] < 0.0) {
+            mousePos["lng"] += 360.0;
+        }
+        mousePos["lng"] = mousePos["lng"].toFixed(4);
+        commit("updateMousePos", mousePos);
+        if (state.selectedPrediction !== null) {
+            // getDistanceFromLatLonInKm()
+            // state.prediction.landing_latlng
+
+            let lauch_distance = distHaversine(state.selectedPrediction.launch_latlng, mousePos);
+            let landing_distance = distHaversine(state.selectedPrediction.landing_latlng, mousePos);
+            // console.log("distance:", lauch_distance, landing_distance);
+            commit("updateCursorDistance", { launch_dis: lauch_distance, landing_dis: landing_distance });
+
+        }
+
+    },
     async selectPosition({ state, commit, rootState }, e) {
         rootState.predictors.form_inputs.lat = e.lat;
         rootState.predictors.form_inputs.lng = e.lng;
@@ -181,8 +206,13 @@ const actions = {
 };
 
 const mutations = {
+    updateMousePos: (state, mousePos) => (state.mousePos = mousePos),
     updateMarkerPos: (state, markerPos) => {
         state.markerPos = markerPos;
+    },
+    updateCursorDistance: (state, obj) => {
+        state.launch_distance = obj.launch_dis;
+        state.landing_distance = obj.landing_dis;
     },
     updatePrediction: (state, prediction_arr) =>
         (state.prediction = prediction_arr),
