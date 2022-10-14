@@ -146,8 +146,7 @@ export const parseQueryParams = (obj) => {
     console.log(obj);
     console.log("parse");
     var curTime = moment.utc(obj.launch_datetime).tz("Asia/Tokyo").local();
-    console.log(curTime);
-    return {
+    var data = {
         selectDay: curTime.format("DD"),
         selectMonth: parseInt(curTime.format("MM")),
         selectYear: curTime.format("YYYY"),
@@ -160,9 +159,25 @@ export const parseQueryParams = (obj) => {
         Profile: obj.profile,
         lng: parseFloat(obj.launch_longitude),
         lat: parseFloat(obj.launch_latitude),
-
-
-
     }
+    return data
     // return d;
+}
+
+export const rad = (x) => { return x * Math.PI / 180; }
+export const distHaversine = (p1, p2, precision) => {
+
+    var R = 6371; // earth's mean radius in km
+    var dLat = rad(p2.lat - p1.lat);
+    var dLong = rad(p2.lng - p1.lng);
+
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(rad(p1.lat)) * Math.cos(rad(p2.lat)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    if (precision == null) {
+        return d.toFixed(3);
+    } else {
+        return d.toFixed(precision);
+    }
 }

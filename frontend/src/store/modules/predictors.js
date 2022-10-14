@@ -1,4 +1,4 @@
-import { convertDMS, getDistanceFromLatLonInKm, parsePrediction, parseQueryParams, zeroPad } from "@/common/utils";
+import { convertDMS, distHaversine, getDistanceFromLatLonInKm, parsePrediction, parseQueryParams, zeroPad } from "@/common/utils";
 import router from '@/router';
 import axios from "axios";
 import moment from "moment-timezone/moment-timezone";
@@ -16,7 +16,8 @@ const state = {
     used_model: null,
     datasets: ["latest", "timestamp"],
     center: [37.850000, 141.057023],
-
+    launch_distance: null,
+    landing_distance: null,
     form_inputs: {
         items: [
             { key: "Point A", postition: { lat: 37.850000, lng: 141.057023 } },
@@ -78,7 +79,15 @@ const actions = {
         commit("updateMousePos", mousePos);
         if (state.prediction !== null) {
             getDistanceFromLatLonInKm()
+            // state.prediction.landing_latlng
+
+            let lauch_distance = distHaversine(state.prediction.launch_latlng, mousePos);
+            let landing_distance = distHaversine(state.prediction.landing_latlng, mousePos);
+            // console.log("distance:", lauch_distance, landing_distance);
+            commit("updateCursorDistance", { launch_dis: lauch_distance, landing_dis: landing_distance });
+
         }
+
     },
     async selectPosition({ state, commit, rootState }, e) {
         state.form_inputs.lat = e.lat;
@@ -121,7 +130,7 @@ const actions = {
 
         console.log("params:", params);
         await axios.get(state.api, { params: params }).then((response) => {
-            console.log(response.data);
+            // console.log(response.data);
             var result = parsePrediction(response.data.prediction);
             console.log(result);
             // var used_model = "";
@@ -145,7 +154,8 @@ const actions = {
                 landing_location_dd: `${result.landing.latlng.lat.toFixed(4)}, ${result.landing.latlng.lng.toFixed(4)}`,
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                 used_model: response.data.used_model,
-                google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
+                google_link: `https://www.google.com/maps?q=loc:${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)}`,
+                // google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
 
             };
             // this.isLoading = false;
@@ -259,7 +269,9 @@ const actions = {
                 range: getDistanceFromLatLonInKm(result.launch.latlng.lat, result.launch.latlng.lng, result.landing.latlng.lat, result.landing.latlng.lng).toFixed(2),
                 used_model: used_model,
                 used_model_jst: usedModelJST,
-                google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
+                google_link: `https://www.google.com/maps?q=loc:${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)}`,
+
+                // google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
 
             };
             // this.isLoading = false;
@@ -293,6 +305,11 @@ const actions = {
 
 const mutations = {
     updateMousePos: (state, mousePos) => (state.mousePos = mousePos),
+    updateCursorDistance: (state, obj) => {
+        console.log("updateCursorDistance:", obj.launch_dis);
+        state.launch_distance = obj.launch_dis;
+        state.landing_distance = obj.landing_dis;
+    },
     updatePrediction: (state, prediction) => (state.prediction = prediction),
     updateUsedModel: (state, used_model) => (state.used_model = used_model),
     updateLatestModel: (state, latest_dataset) => (state.latest_dataset = latest_dataset),

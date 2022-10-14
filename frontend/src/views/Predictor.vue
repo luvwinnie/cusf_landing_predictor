@@ -46,6 +46,10 @@
                   prediction.flight_time.toFixed(2)
                 }}hours
                 <br />
+                Cursor range from launch: <span>{{ launch_distance }}</span
+                >km, land: <span>{{ landing_distance }}</span
+                >km
+                <br />
                 <span> Landing(DMS):{{ prediction.landing_location }} </span>
                 <br />
                 <span>
@@ -229,6 +233,8 @@ export default {
       "form_inputs",
       "center",
       "latest_dataset",
+      "launch_distance",
+      "landing_distance",
     ]),
     ...mapGetters(["isLoading"]),
   },

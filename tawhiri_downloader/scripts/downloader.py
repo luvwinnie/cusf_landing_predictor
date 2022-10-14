@@ -62,7 +62,7 @@ def download_dataset():
     # return 
 
 
-schedule.every(1).minutes.do(download_dataset)
+schedule.every(3).minutes.do(download_dataset)
 while True:
     schedule.run_pending()
 

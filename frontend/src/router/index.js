@@ -89,10 +89,14 @@ router.beforeEach((to, from, next) => {
                     // used_model: response.data.used_model,
                     used_model: used_model,
                     used_model_jst: usedModelJST,
-                    google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
+                    google_link: `https://www.google.com/maps?q=loc:${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)}`,
+                    // google_link: `https://www.google.com/maps/@${result.landing.latlng.lat.toFixed(4)},${result.landing.latlng.lng.toFixed(4)},15z`,
                 };
                 // this.isLoading = false;
                 store.commit("predictors/updatePrediction", prediction);
+                let lauch_distance = distHaversine(state.prediction.launch_latlng, mousePos);
+                let landing_distance = distHaversine(state.prediction.landing_latlng, mousePos);
+                commit("updateCursorDistance", { launch_dis: lauch_distance, landing_dis: landing_distance });
             });
         }
 
