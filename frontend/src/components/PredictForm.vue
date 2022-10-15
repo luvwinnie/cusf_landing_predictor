@@ -37,6 +37,7 @@
                 <v-text-field
                   v-model="form_inputs.lng"
                   label="Longtitude"
+                  @change="updateLng"
                   required
                 ></v-text-field>
               </v-col>

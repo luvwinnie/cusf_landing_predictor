@@ -287,17 +287,18 @@ const actions = {
     async updateLat({ state, rootState }, e) {
         console.log(e, rootState.hourly);
         // state.markerPos[0] = e;
-        var newMarkerPos = [e, rootState.hourly.markerPos[1]];
-        state.form_inputs.lat = e;
-        state.center = [e, state.form_inputs.lng];
-        rootState.hourly.commit("updateMarkerPos", newMarkerPos);
+        var newMarkerPos = [parseFloat(e), rootState.hourly.markerPos[1]];
+        state.form_inputs.lat = parseFloat(e);
+        state.center = [parseFloat(e), state.form_inputs.lng];
+        rootState.hourly.markerPos = newMarkerPos;
+
     },
     async updateLng({ state, rootState }, e) {
         console.log(e);
-        var newMarkerPos = [rootState.hourly.markerPos[0], e];
-        state.form_inputs.lng = e;
-        state.center = [state.form_inputs.lat, e];
-        rootState.hourly.commit("updateMarkerPos", newMarkerPos);
+        var newMarkerPos = [rootState.hourly.markerPos[0], parseFloat(e)];
+        state.form_inputs.lng = parseFloat(e);
+        state.center = [state.form_inputs.lat, parseFloat(e)];
+        rootState.hourly.markerPos = newMarkerPos;
 
 
     },
